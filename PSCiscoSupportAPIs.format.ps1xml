@@ -148,5 +148,192 @@
                 </TableRowEntries>
             </TableControl>
         </View>
+        <!--
+            Software Suggestion API
+        -->
+        <View>
+            <Name>PSCiscoSupportAPIs.SoftwareSuggestion.MdfId</Name>
+            <ViewSelectedBy>
+                <TypeName>PSCiscoSupportAPIs.SoftwareSuggestion.MdfId</TypeName>
+            </ViewSelectedBy>
+            <TableControl>
+                <TableHeaders>
+                    <TableColumnHeader>
+                        <Label>MDF ID</Label>
+                    </TableColumnHeader>
+                    <TableColumnHeader>
+                        <Label>Product Name</Label>
+                    </TableColumnHeader>
+                    <TableColumnHeader>
+                        <Label>Software Type</Label>
+                    </TableColumnHeader>
+                    <TableColumnHeader>
+                        <Label>Software Release</Label>
+                    </TableColumnHeader>
+                    <TableColumnHeader>
+                        <Label>Is Suggested?</Label>
+                    </TableColumnHeader>
+                    <TableColumnHeader>
+                        <Label>Release Date</Label>
+                    </TableColumnHeader>
+                </TableHeaders>
+                <TableRowEntries>
+                    <TableRowEntry>
+                        <TableColumnItems>
+                            <TableColumnItem>
+                                <PropertyName>mdfId</PropertyName>
+                            </TableColumnItem>
+                            <TableColumnItem>
+                                <PropertyName>productName</PropertyName>
+                            </TableColumnItem>
+                            <TableColumnItem>
+                                <PropertyName>softwareType</PropertyName>
+                            </TableColumnItem>
+                            <TableColumnItem>
+                                <PropertyName>relDispName</PropertyName>
+                            </TableColumnItem>
+                            <TableColumnItem>
+                                <PropertyName>isSuggested</PropertyName>
+                            </TableColumnItem>
+                            <TableColumnItem>
+                                <PropertyName>releaseDate</PropertyName>
+                            </TableColumnItem>
+                        </TableColumnItems>
+                    </TableRowEntry>
+                </TableRowEntries>
+            </TableControl>
+        </View>
+        <View>
+            <Name>PSCiscoSupportAPIs.SoftwareSuggestion.MdfIds</Name>
+            <ViewSelectedBy>
+                <TypeName>PSCiscoSupportAPIs.SoftwareSuggestion.MdfIds</TypeName>
+            </ViewSelectedBy>
+            <TableControl>
+                <TableHeaders>
+                    <TableColumnHeader>
+                        <Label>MDF ID</Label>
+                    </TableColumnHeader>
+                    <TableColumnHeader>
+                        <Label>Product Name</Label>
+                    </TableColumnHeader>
+                    <TableColumnHeader>
+                        <Label>Software Type</Label>
+                    </TableColumnHeader>
+                    <TableColumnHeader>
+                        <Label>Suggested Release(s)</Label>
+                    </TableColumnHeader>
+                </TableHeaders>
+                <TableRowEntries>
+                    <TableRowEntry>
+                        <TableColumnItems>
+                            <TableColumnItem>
+                                <ScriptBlock>$_.product.mdfId</ScriptBlock>
+                            </TableColumnItem>
+                            <TableColumnItem>
+                                <ScriptBlock>$_.product.productName</ScriptBlock>
+                            </TableColumnItem>
+                            <TableColumnItem>
+                                <ScriptBlock>$_.product.softwareType</ScriptBlock>
+                            </TableColumnItem>
+                            <TableColumnItem>
+                                <ScriptBlock>[String]::Join(', ', $_.suggestions.relDispName)</ScriptBlock>
+                            </TableColumnItem>
+                        </TableColumnItems>
+                    </TableRowEntry>
+                </TableRowEntries>
+            </TableControl>
+        </View>
+        <View>
+            <Name>PSCiscoSupportAPIs.SoftwareSuggestion.Pid</Name>
+            <ViewSelectedBy>
+                <TypeName>PSCiscoSupportAPIs.SoftwareSuggestion.Pid</TypeName>
+            </ViewSelectedBy>
+            <TableControl>
+                <TableHeaders>
+                    <TableColumnHeader>
+                        <Label>Base PID</Label>
+                    </TableColumnHeader>
+                    <TableColumnHeader>
+                        <Label>Product Name</Label>
+                    </TableColumnHeader>
+                    <TableColumnHeader>
+                        <Label>Software Type</Label>
+                    </TableColumnHeader>
+                    <TableColumnHeader>
+                        <Label>Software Release</Label>
+                    </TableColumnHeader>
+                    <TableColumnHeader>
+                        <Label>Is Suggested?</Label>
+                    </TableColumnHeader>
+                    <TableColumnHeader>
+                        <Label>Release Date</Label>
+                    </TableColumnHeader>
+                </TableHeaders>
+                <TableRowEntries>
+                    <TableRowEntry>
+                        <TableColumnItems>
+                            <TableColumnItem>
+                                <PropertyName>basePID</PropertyName>
+                            </TableColumnItem>
+                            <TableColumnItem>
+                                <PropertyName>productName</PropertyName>
+                            </TableColumnItem>
+                            <TableColumnItem>
+                                <PropertyName>softwareType</PropertyName>
+                            </TableColumnItem>
+                            <TableColumnItem>
+                                <PropertyName>relDispName</PropertyName>
+                            </TableColumnItem>
+                            <TableColumnItem>
+                                <PropertyName>isSuggested</PropertyName>
+                            </TableColumnItem>
+                            <TableColumnItem>
+                                <PropertyName>releaseDate</PropertyName>
+                            </TableColumnItem>
+                        </TableColumnItems>
+                    </TableRowEntry>
+                </TableRowEntries>
+            </TableControl>
+        </View>
+        <View>
+            <Name>PSCiscoSupportAPIs.SoftwareSuggestion.Pids</Name>
+            <ViewSelectedBy>
+                <TypeName>PSCiscoSupportAPIs.SoftwareSuggestion.Pids</TypeName>
+            </ViewSelectedBy>
+            <TableControl>
+                <TableHeaders>
+                    <TableColumnHeader>
+                        <Label>Base PID</Label>
+                    </TableColumnHeader>
+                    <TableColumnHeader>
+                        <Label>Product Name</Label>
+                    </TableColumnHeader>
+                    <TableColumnHeader>
+                        <Label>Software Type</Label>
+                    </TableColumnHeader>
+                    <TableColumnHeader>
+                        <Label>Suggested Release(s)</Label>
+                    </TableColumnHeader>
+                </TableHeaders>
+                <TableRowEntries>
+                    <TableRowEntry>
+                        <TableColumnItems>
+                            <TableColumnItem>
+                                <ScriptBlock>$_.product.basePID</ScriptBlock>
+                            </TableColumnItem>
+                            <TableColumnItem>
+                                <ScriptBlock>$_.product.productName</ScriptBlock>
+                            </TableColumnItem>
+                            <TableColumnItem>
+                                <ScriptBlock>$_.product.softwareType</ScriptBlock>
+                            </TableColumnItem>
+                            <TableColumnItem>
+                                <ScriptBlock>[String]::Join(', ', $_.suggestions.relDispName)</ScriptBlock>
+                            </TableColumnItem>
+                        </TableColumnItems>
+                    </TableRowEntry>
+                </TableRowEntries>
+            </TableControl>
+        </View>
     </ViewDefinitions>
 </Configuration>

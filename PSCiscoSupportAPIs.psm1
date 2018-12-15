@@ -221,3 +221,236 @@ Function Get-CiscoProductInformation {
     return $ApiResponse
 }
 #endregion
+
+#region Software Suggestion API
+Function Get-CiscoSoftwareSuggestion {
+    <#
+        .SYNOPSIS
+        Retrieve suggested software releases by product identifier(s) or metadata framework identifier(s)
+
+        .DESCRIPTION
+        This function wraps the Cisco Software Suggestion API to allow easy querying from PowerShell.
+
+        .PARAMETER ClientId
+        Use the specified client ID for API authentication.
+
+        This overrides any default specified in $CiscoApiClientId.
+
+        .PARAMETER ClientSecret
+        Use the specified client secret for API authentication.
+
+        This overrides any default specified in $CiscoApiClientSecret.
+
+        .PARAMETER CurrentImage
+        Filter the results on current image identifier.
+
+        Identifier should be provided as the image name (e.g. c2801-adventerprisek9-mz.151-4.M6.bin).
+
+        .PARAMETER CurrentRelease
+        Filter the results on current release version.
+
+        Version should be provided in one of the following two forms: 15.0(24)T7 or 15.0.24T7.
+
+        .PARAMETER IncludeImages
+        Include software image details corresponding to the suggested software releases(s).
+
+        .PARAMETER MdfID
+        Retrieve compatible and suggested software release(s) associated with the specified metadata framework identifier.
+
+        .PARAMETER MdfIDs
+        Retrieve suggested software release(s) associated with the specified metadata framework identifier(s).
+
+        Up to ten metadata framework identifiers can be entered specified as an array of strings.
+
+        .PARAMETER PageIndex
+        Index number of the page to return.
+
+        If not specified the first page will be returned.
+
+        .PARAMETER ProductID
+        Retrieve compatible and suggested software release(s) associated with the specified product identifier.
+
+        .PARAMETER ProductIDs
+        Retrieve suggested software release(s) associated with the specified product identifier(s).
+
+        Up to ten product identifiers can be entered specified as an array of strings.
+
+        .PARAMETER ResponseFormat
+        Format in which to return the API response.
+
+        Valid formats are:
+        - JSON                  The JSON response as a string
+        - PSObject              A PSCustomObject built from the JSON response
+        - WebResponse           The BasicHtmlWebResponseObject returned by Invoke-WebRequest
+
+        The default is PSObject which is optimised for viewing and interacting with on the CLI.
+
+        This may include:
+        - Splitting each record into its own custom PowerShell object
+        - Adding custom types to objects to apply custom view definitions
+        - Removing typically unneeded JSON objects (e.g. pagination records)
+
+        A global default may be specified by setting $CiscoApiResponseFormat.
+
+        .PARAMETER SupportedFeatures
+        Filter the results on supported feature(s).
+
+        Up to ten feature names can be entered specified as an array of strings.
+
+        .PARAMETER SupportedHardware
+        Filter the results on supported hardware identifier(s).
+
+        .EXAMPLE
+        Get-CiscoSoftwareSuggestion -ProductIDs ASR-903,CISCO2811,N7K-C7018 -IncludeImages
+
+        Retrieve suggested software release(s) with image details for the provided product identifiers.
+
+        .EXAMPLE
+        Get-CiscoSoftwareSuggestion -ProductID ASR1013 -CurrentImage asr1000rpx86-universalk9.16.02.01.SPA.bin
+
+        Retrieve suggested software release(s) for the ASR 1013 platform currently running IOS XE 16.2.1.
+
+        .NOTES
+        The provided API credentials must have access to the Cisco Software Suggestion API.
+
+        .LINK
+        https://developer.cisco.com/docs/support-apis/#!software-suggestion
+    #>
+
+    [CmdletBinding()]
+    Param(
+        [Parameter(ParameterSetName='Pids', Mandatory)]
+        [ValidateCount(1, 10)]
+        [ValidateLength(1, 20)]
+        [String[]]$ProductIDs,
+
+        [Parameter(ParameterSetName='Pid', Mandatory)]
+        [ValidateLength(1, 20)]
+        [String]$ProductID,
+
+        [Parameter(ParameterSetName='MdfIds', Mandatory)]
+        [ValidateCount(1, 10)]
+        [ValidateLength(1, 20)]
+        [String[]]$MdfIDs,
+
+        [Parameter(ParameterSetName='MdfId', Mandatory)]
+        [ValidateLength(1, 20)]
+        [String]$MdfID,
+
+        [Parameter(ParameterSetName='Pids')]
+        [Parameter(ParameterSetName='MdfIds')]
+        [Switch]$IncludeImages,
+
+        [Parameter(ParameterSetName='Pid')]
+        [Parameter(ParameterSetName='MdfId')]
+        [ValidateLength(1, 59)]
+        [String]$CurrentImage,
+
+        [Parameter(ParameterSetName='Pid')]
+        [Parameter(ParameterSetName='MdfId')]
+        [ValidateLength(1, 15)]
+        [String]$CurrentRelease,
+
+        [Parameter(ParameterSetName='Pid')]
+        [Parameter(ParameterSetName='MdfId')]
+        [ValidateCount(1, 10)]
+        [String[]]$SupportedFeatures,
+
+        [Parameter(ParameterSetName='Pid')]
+        [Parameter(ParameterSetName='MdfId')]
+        [String[]]$SupportedHardware,
+
+        [ValidateRange(1, 9999)]
+        [Int]$PageIndex=1,
+
+        [ValidateSet('JSON', 'PSObject', 'WebResponse')]
+        [String]$ResponseFormat='PSObject',
+
+        [ValidateNotNullOrEmpty()]
+        [String]$ClientId,
+
+        [ValidateNotNullOrEmpty()]
+        [String]$ClientSecret
+    )
+
+    Initialize-CiscoApiRequest
+
+    $BaseUri = 'https://api.cisco.com/software/suggestion/v2'
+    $QueryParams = @{
+        pageIndex = $PageIndex
+    }
+
+    if ($PSCmdlet.ParameterSetName -in ('Pids', 'MdfIds')) {
+        if ($PSCmdlet.ParameterSetName -eq 'Pids') {
+            $IDs = $ProductIDs
+            $BaseId = 'productIds'
+        } else {
+            $IDs = $MdfIDs
+            $BaseId = 'mdfIds'
+        }
+
+        if ($IncludeImages) {
+            $Uri = '{0}/suggestions/software/{1}/{2}' -f $BaseUri, $BaseId, [String]::Join(',', $IDs)
+        } else {
+            $Uri = '{0}/suggestions/releases/{1}/{2}' -f $BaseUri, $BaseId, [String]::Join(',', $IDs)
+        }
+    } else {
+        if ($PSCmdlet.ParameterSetName -eq 'Pid') {
+            $ID = $ProductID
+            $BaseId = 'productId'
+        } else {
+            $ID = $MdfID
+            $BaseId = 'mdfId'
+        }
+
+        $Uri = '{0}/suggestions/compatible/{1}/{2}' -f $BaseUri, $BaseId, $ID
+
+        if ($PSBoundParameters.ContainsKey('CurrentImage')) {
+            $QueryParams['currentImage'] = $CurrentImage
+        }
+
+        if ($PSBoundParameters.ContainsKey('CurrentRelease')) {
+            $QueryParams['currentRelease'] = $CurrentRelease
+        }
+
+        if ($PSBoundParameters.ContainsKey('SupportedFeatures')) {
+            $QueryParams['supportedFeatures'] = [String]::Join(',', $SupportedFeatures)
+        }
+
+        if ($PSBoundParameters.ContainsKey('SupportedHardware')) {
+            $QueryParams['supportedHardware'] = [String]::Join(',', $SupportedHardware)
+        }
+    }
+
+    try {
+        $Response = & $RequestCommand @RequestCommandBaseParams -Uri $Uri -Method Get -Headers $ApiToken -Body $QueryParams
+    } catch {
+        throw $_
+    }
+
+    switch ($PSBoundParameters['ResponseFormat']) {
+        'WebResponse' { return $Response }
+        'JSON' { return $Response.Content }
+    }
+
+    if ($PSCmdlet.ParameterSetName -in ('Pids', 'MdfIds')) {
+        $ApiResponse = $Response.productList
+
+        if ($PSCmdlet.ParameterSetName -eq 'Pids') {
+            $ApiResponse | ForEach-Object { $_.PSObject.TypeNames.Insert(0, 'PSCiscoSupportAPIs.SoftwareSuggestion.Pids') }
+        } else {
+            $ApiResponse | ForEach-Object { $_.PSObject.TypeNames.Insert(0, 'PSCiscoSupportAPIs.SoftwareSuggestion.MdfIds') }
+        }
+    } else {
+        $ApiResponse = $Response.suggestions
+
+        if ($PSCmdlet.ParameterSetName -eq 'Pid') {
+            $ApiResponse | ForEach-Object { $_.PSObject.TypeNames.Insert(0, 'PSCiscoSupportAPIs.SoftwareSuggestion.Pid') }
+        } else {
+            $ApiResponse | ForEach-Object { $_.PSObject.TypeNames.Insert(0, 'PSCiscoSupportAPIs.SoftwareSuggestion.MdfId') }
+        }
+    }
+
+    return $ApiResponse
+}
+#endregion
