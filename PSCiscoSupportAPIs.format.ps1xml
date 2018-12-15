@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Configuration>
+    <ViewDefinitions>
+        <!--
+            Product Information API
+        -->
+        <View>
+            <Name>PSCiscoSupportAPIs.ProductInformation.Pid</Name>
+            <ViewSelectedBy>
+                <TypeName>PSCiscoSupportAPIs.ProductInformation.Pid</TypeName>
+            </ViewSelectedBy>
+            <TableControl>
+                <TableHeaders>
+                    <TableColumnHeader>
+                        <Label>Product ID</Label>
+                    </TableColumnHeader>
+                    <TableColumnHeader>
+                        <Label>Product Name</Label>
+                    </TableColumnHeader>
+                    <TableColumnHeader>
+                        <Label>Product Series</Label>
+                    </TableColumnHeader>
+                    <TableColumnHeader>
+                        <Label>Product Category</Label>
+                    </TableColumnHeader>
+                    <TableColumnHeader>
+                        <Label>Release Date</Label>
+                    </TableColumnHeader>
+                </TableHeaders>
+                <TableRowEntries>
+                    <TableRowEntry>
+                        <TableColumnItems>
+                            <TableColumnItem>
+                                <PropertyName>product_id</PropertyName>
+                            </TableColumnItem>
+                            <TableColumnItem>
+                                <PropertyName>product_name</PropertyName>
+                            </TableColumnItem>
+                            <TableColumnItem>
+                                <PropertyName>product_series</PropertyName>
+                            </TableColumnItem>
+                            <TableColumnItem>
+                                <PropertyName>product_category</PropertyName>
+                            </TableColumnItem>
+                            <TableColumnItem>
+                                <PropertyName>release_date</PropertyName>
+                            </TableColumnItem>
+                        </TableColumnItems>
+                    </TableRowEntry>
+                </TableRowEntries>
+            </TableControl>
+        </View>
+        <View>
+            <Name>PSCiscoSupportAPIs.ProductInformation.PidMdf</Name>
+            <ViewSelectedBy>
+                <TypeName>PSCiscoSupportAPIs.ProductInformation.PidMdf</TypeName>
+            </ViewSelectedBy>
+            <TableControl>
+                <TableHeaders>
+                    <TableColumnHeader>
+                        <Label>Product ID</Label>
+                    </TableColumnHeader>
+                    <TableColumnHeader>
+                        <Label>Product Name</Label>
+                    </TableColumnHeader>
+                    <TableColumnHeader>
+                        <Label>Product Name MDF</Label>
+                    </TableColumnHeader>
+                    <TableColumnHeader>
+                        <Label>Product Series</Label>
+                    </TableColumnHeader>
+                    <TableColumnHeader>
+                        <Label>Product Series MDF</Label>
+                    </TableColumnHeader>
+                </TableHeaders>
+                <TableRowEntries>
+                    <TableRowEntry>
+                        <TableColumnItems>
+                            <TableColumnItem>
+                                <PropertyName>product_id</PropertyName>
+                            </TableColumnItem>
+                            <TableColumnItem>
+                                <PropertyName>product_name</PropertyName>
+                            </TableColumnItem>
+                            <TableColumnItem>
+                                <PropertyName>product_name_mdf</PropertyName>
+                            </TableColumnItem>
+                            <TableColumnItem>
+                                <PropertyName>product_series</PropertyName>
+                            </TableColumnItem>
+                            <TableColumnItem>
+                                <PropertyName>product_series_mdf</PropertyName>
+                            </TableColumnItem>
+                        </TableColumnItems>
+                    </TableRowEntry>
+                </TableRowEntries>
+            </TableControl>
+        </View>
+        <View>
+            <Name>PSCiscoSupportAPIs.ProductInformation.Serial</Name>
+            <ViewSelectedBy>
+                <TypeName>PSCiscoSupportAPIs.ProductInformation.Serial</TypeName>
+            </ViewSelectedBy>
+            <TableControl>
+                <TableHeaders>
+                    <TableColumnHeader>
+                        <Label>Serial No.</Label>
+                    </TableColumnHeader>
+                    <TableColumnHeader>
+                        <Label>Base PID</Label>
+                    </TableColumnHeader>
+                    <TableColumnHeader>
+                        <Label>Product Name</Label>
+                    </TableColumnHeader>
+                    <TableColumnHeader>
+                        <Label>Product Series</Label>
+                    </TableColumnHeader>
+                    <TableColumnHeader>
+                        <Label>Product Category</Label>
+                    </TableColumnHeader>
+                    <TableColumnHeader>
+                        <Label>Release Date</Label>
+                    </TableColumnHeader>
+                </TableHeaders>
+                <TableRowEntries>
+                    <TableRowEntry>
+                        <TableColumnItems>
+                            <TableColumnItem>
+                                <PropertyName>sr_no</PropertyName>
+                            </TableColumnItem>
+                            <TableColumnItem>
+                                <PropertyName>base_pid</PropertyName>
+                            </TableColumnItem>
+                            <TableColumnItem>
+                                <PropertyName>product_name</PropertyName>
+                            </TableColumnItem>
+                            <TableColumnItem>
+                                <PropertyName>product_series</PropertyName>
+                            </TableColumnItem>
+                            <TableColumnItem>
+                                <PropertyName>product_category</PropertyName>
+                            </TableColumnItem>
+                            <TableColumnItem>
+                                <PropertyName>release_date</PropertyName>
+                            </TableColumnItem>
+                        </TableColumnItems>
+                    </TableRowEntry>
+                </TableRowEntries>
+            </TableControl>
+        </View>
+    </ViewDefinitions>
+</Configuration>

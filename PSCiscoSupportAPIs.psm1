@@ -79,3 +79,145 @@ Function Get-CiscoApiAccessToken {
 
     return $AuthzHeader
 }
+
+#region Product Information API
+Function Get-CiscoProductInformation {
+    <#
+        .SYNOPSIS
+        Retrieve product information by serial number or product identifier
+
+        .DESCRIPTION
+        This function wraps the Cisco Product Information API to allow easy querying from PowerShell.
+
+        .PARAMETER ClientId
+        Use the specified client ID for API authentication.
+
+        This overrides any default specified in $CiscoApiClientId.
+
+        .PARAMETER ClientSecret
+        Use the specified client secret for API authentication.
+
+        This overrides any default specified in $CiscoApiClientSecret.
+
+        .PARAMETER MetadataFramework
+        Retrieve metadata framework identifiers associated with the specified product identifier(s).
+
+        .PARAMETER PageIndex
+        Index number of the page to return.
+
+        If not specified the first page will be returned.
+
+        .PARAMETER ProductIDs
+        Retrieve product information associated with the specified product identifier(s).
+
+        Up to five product identifiers can be entered specified as an array of strings.
+
+        .PARAMETER ResponseFormat
+        Format in which to return the API response.
+
+        Valid formats are:
+        - JSON                  The JSON response as a string
+        - PSObject              A PSCustomObject built from the JSON response
+        - WebResponse           The BasicHtmlWebResponseObject returned by Invoke-WebRequest
+
+        The default is PSObject which is optimised for viewing and interacting with on the CLI.
+
+        This may include:
+        - Splitting each record into its own custom PowerShell object
+        - Adding custom types to objects to apply custom view definitions
+        - Removing typically unneeded JSON objects (e.g. pagination records)
+
+        A global default may be specified by setting $CiscoApiResponseFormat.
+
+        .PARAMETER SerialNumbers
+        Retrieve product information associated with the specified serial number(s).
+
+        Up to five serial numbers can be entered specified as an array of strings.
+
+        .EXAMPLE
+        Get-CiscoProductInformation -SerialNumbers REF_CSJ07306405,SPE181700LN
+
+        Retrieve product information for the provided serial numbers.
+
+        .EXAMPLE
+        Get-CiscoProductInformation -ProductIDs ASR1001,UBR10012
+
+        Retrieve product information for the provided product IDs.
+
+        .NOTES
+        The provided API credentials must have access to the Cisco Product Information API.
+
+        .LINK
+        https://developer.cisco.com/docs/support-apis/#!product-information
+    #>
+
+    [CmdletBinding()]
+    Param(
+        [Parameter(ParameterSetName='Serial', Mandatory)]
+        [ValidateCount(1, 5)]
+        [ValidateLength(1, 40)]
+        [String[]]$SerialNumbers,
+
+        [Parameter(ParameterSetName='Pid', Mandatory)]
+        [ValidateCount(1, 5)]
+        [ValidateLength(1, 40)]
+        [String[]]$ProductIDs,
+
+        [Parameter(ParameterSetName='Pid')]
+        [Switch]$MetadataFramework,
+
+        [ValidateRange(1, 99)]
+        [Int]$PageIndex=1,
+
+        [ValidateSet('JSON', 'PSObject', 'WebResponse')]
+        [String]$ResponseFormat='PSObject',
+
+        [ValidateNotNullOrEmpty()]
+        [String]$ClientId,
+
+        [ValidateNotNullOrEmpty()]
+        [String]$ClientSecret
+    )
+
+    Initialize-CiscoApiRequest
+
+    $BaseUri = 'https://api.cisco.com/product/v1'
+    $QueryParams = @{
+        page_index = $PageIndex
+    }
+
+    if ($PSCmdlet.ParameterSetName -eq 'Serial') {
+        $Uri = '{0}/information/serial_numbers/{1}' -f $BaseUri, [String]::Join(',', $SerialNumbers)
+    } else {
+        if ($MetadataFramework) {
+            $Uri = '{0}/information/product_ids_mdf/{1}' -f $BaseUri, [String]::Join(',', $ProductIDs)
+        } else {
+            $Uri = '{0}/information/product_ids/{1}' -f $BaseUri, [String]::Join(',', $ProductIDs)
+        }
+    }
+
+    try {
+        $Response = & $RequestCommand @RequestCommandBaseParams -Uri $Uri -Method Get -Headers $ApiToken -Body $QueryParams
+    } catch {
+        throw $_
+    }
+
+    switch ($PSBoundParameters['ResponseFormat']) {
+        'WebResponse' { return $Response }
+        'JSON' { return $Response.Content }
+    }
+
+    $ApiResponse = $Response.product_list
+    if ($PSCmdlet.ParameterSetName -eq 'Serial') {
+        $ApiResponse | ForEach-Object { $_.PSObject.TypeNames.Insert(0, 'PSCiscoSupportAPIs.ProductInformation.Serial') }
+    } else {
+        if ($MetadataFramework) {
+            $ApiResponse | ForEach-Object { $_.PSObject.TypeNames.Insert(0, 'PSCiscoSupportAPIs.ProductInformation.PidMdf') }
+        } else {
+            $ApiResponse | ForEach-Object { $_.PSObject.TypeNames.Insert(0, 'PSCiscoSupportAPIs.ProductInformation.Pid') }
+        }
+    }
+
+    return $ApiResponse
+}
+#endregion
