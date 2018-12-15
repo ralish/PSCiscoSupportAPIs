@@ -80,6 +80,382 @@ Function Get-CiscoApiAccessToken {
     return $AuthzHeader
 }
 
+#region Automated Software Distribution API
+Function Get-CiscoSoftwareChecksum {
+    <#
+        .SYNOPSIS
+        Retrieve software checksum information by image name
+
+        .DESCRIPTION
+        This function wraps the Cisco Automated Software Distribution API to allow easy querying from PowerShell.
+
+        .PARAMETER ClientId
+        Use the specified client ID for API authentication.
+
+        This overrides any default specified in $CiscoApiClientId.
+
+        .PARAMETER ClientSecret
+        Use the specified client secret for API authentication.
+
+        This overrides any default specified in $CiscoApiClientSecret.
+
+        .PARAMETER ImageNames
+        Retrieve software checksum information for the specified image name(s).
+
+        Up to five image names can be entered specified as an array of strings.
+
+        .PARAMETER ResponseFormat
+        Format in which to return the API response.
+
+        Valid formats are:
+        - JSON                  The JSON response as a string
+        - PSObject              A PSCustomObject built from the JSON response
+        - WebResponse           The BasicHtmlWebResponseObject returned by Invoke-WebRequest
+
+        The default is PSObject which is optimised for viewing and interacting with on the CLI.
+
+        This may include:
+        - Splitting each record into its own custom PowerShell object
+        - Adding custom types to objects to apply custom view definitions
+        - Removing typically unneeded JSON objects (e.g. pagination records)
+
+        A global default may be specified by setting $CiscoApiResponseFormat.
+
+        .EXAMPLE
+        Get-CiscoSoftwareChecksum -ImageNames c2960-lanlitek9-mz.150-2.SE5.bin,mc3810-ik9s-mz.123-9e.bin
+
+        Retrieve software checksum information for the provided image names.
+
+        .NOTES
+        The provided API credentials must have access to the Cisco Automated Software Distribution API.
+
+        .LINK
+        https://developer.cisco.com/docs/support-apis/#!automated-software-distribution
+    #>
+
+    [CmdletBinding()]
+    Param(
+        [Parameter(Mandatory)]
+        [ValidateCount(1, 5)]
+        [ValidateLength(1, 256)]
+        [String[]]$ImageNames,
+
+        [ValidateSet('JSON', 'PSObject', 'WebResponse')]
+        [String]$ResponseFormat='PSObject',
+
+        [ValidateNotNullOrEmpty()]
+        [String]$ClientId,
+
+        [ValidateNotNullOrEmpty()]
+        [String]$ClientSecret
+    )
+
+    Initialize-CiscoApiRequest
+
+    $BaseUri = 'https://api.cisco.com/software/v3.0'
+    $QueryParams = @{}
+
+    $Uri = '{0}/checksum/image_names/{1}' -f $BaseUri, [String]::Join(',', $ImageNames)
+
+    try {
+        $Response = & $RequestCommand @RequestCommandBaseParams -Uri $Uri -Method Get -Headers $ApiToken -Body $QueryParams
+    } catch {
+        throw $_
+    }
+
+    switch ($PSBoundParameters['ResponseFormat']) {
+        'WebResponse' { return $Response }
+        'JSON' { return $Response.Content }
+    }
+
+    $ApiResponse = $Response.checksums
+    $ApiResponse | ForEach-Object { $_.PSObject.TypeNames.Insert(0, 'PSCiscoSupportAPIs.SoftwareChecksum') }
+
+    return $ApiResponse
+}
+
+Function Get-CiscoSoftwareRelease {
+    <#
+        .SYNOPSIS
+        Retrieve software release information by product identifier(s)
+
+        .DESCRIPTION
+        This function wraps the Cisco Automated Software Distribution API to allow easy querying from PowerShell.
+
+        .PARAMETER ClientId
+        Use the specified client ID for API authentication.
+
+        This overrides any default specified in $CiscoApiClientId.
+
+        .PARAMETER ClientSecret
+        Use the specified client secret for API authentication.
+
+        This overrides any default specified in $CiscoApiClientSecret.
+
+        .PARAMETER CurrentReleases
+        Current release version on which to filter the results.
+
+        A current release version must be specified for each provided product identifier.
+
+        .PARAMETER ImageNames
+        Retrieve software release information for the specified image name(s).
+
+        Up to 25 image names can be entered specified as an array of strings.
+
+        .PARAMETER OutputReleases
+        Output release version on which to filter the results.
+
+        A output release version must be specified for each provided product identifier.
+
+        Valid values are:
+        - Above
+        - Latest
+
+        .PARAMETER PageIndex
+        Index number of the page to return.
+
+        If not specified the first page will be returned.
+
+        .PARAMETER ProductID
+        Retrieve software release information associated with the specified product identifier.
+
+        .PARAMETER ProductIDs
+        Retrieve software release information associated with the specified product identifier(s).
+
+        Up to five product identifiers can be entered specified as an array of strings.
+
+        .PARAMETER ResponseFormat
+        Format in which to return the API response.
+
+        Valid formats are:
+        - JSON                  The JSON response as a string
+        - PSObject              A PSCustomObject built from the JSON response
+        - WebResponse           The BasicHtmlWebResponseObject returned by Invoke-WebRequest
+
+        The default is PSObject which is optimised for viewing and interacting with on the CLI.
+
+        This may include:
+        - Splitting each record into its own custom PowerShell object
+        - Adding custom types to objects to apply custom view definitions
+        - Removing typically unneeded JSON objects (e.g. pagination records)
+
+        A global default may be specified by setting $CiscoApiResponseFormat.
+
+        .EXAMPLE
+        Get-CiscoSoftwareRelease -ProductIDs R2XX-D500GCSATA,WS-C2960-8TC-S -CurrentReleases '1.4(2b)',15.0.2-SE5 -OutputReleases Latest,Latest
+
+        Retrieve software release information for the provided product IDs filtered on the given respective current release version and returning only the latest respective release version.
+
+        .EXAMPLE
+        Get-CiscoSoftwareRelease -ProductID WS-F4531= -ImageNames cat4000-i5s-mz.122-25.EWA7.bin
+
+        Retrieve software release information for the provided product ID and image name.
+
+        .NOTES
+        The provided API credentials must have access to the Cisco Automated Software Distribution API.
+
+        .LINK
+        https://developer.cisco.com/docs/support-apis/#!automated-software-distribution
+    #>
+
+    [CmdletBinding()]
+    Param(
+        [Parameter(ParameterSetName='Pids', Mandatory)]
+        [ValidateCount(1, 5)]
+        [ValidateLength(1, 20)]
+        [String[]]$ProductIDs,
+
+        [Parameter(ParameterSetName='Pids', Mandatory)]
+        [ValidateCount(1, 5)]
+        [ValidateLength(1, 20)]
+        [String[]]$CurrentReleases,
+
+        [Parameter(ParameterSetName='Pids', Mandatory)]
+        [ValidateCount(1, 5)]
+        [ValidateSet('Above', 'Latest')]
+        [String[]]$OutputReleases,
+
+        [Parameter(ParameterSetName='Pid', Mandatory)]
+        [ValidateLength(1, 20)]
+        [String]$ProductID,
+
+        [Parameter(ParameterSetName='Pid', Mandatory)]
+        [ValidateCount(1, 25)]
+        [ValidateLength(1, 256)]
+        [String[]]$ImageNames,
+
+        [Parameter(ParameterSetName='Pids')]
+        [ValidateRange(1, 99999)]
+        [Int]$PageIndex=1,
+
+        [ValidateSet('JSON', 'PSObject', 'WebResponse')]
+        [String]$ResponseFormat='PSObject',
+
+        [ValidateNotNullOrEmpty()]
+        [String]$ClientId,
+
+        [ValidateNotNullOrEmpty()]
+        [String]$ClientSecret
+    )
+
+    Initialize-CiscoApiRequest
+
+    if ($PSCmdlet.ParameterSetName -eq 'Pids') {
+        if ($CurrentReleases.Count -ne $ProductIDs.Count) {
+            throw 'A current release version must be specified for each product ID.'
+        } elseif ($OutputReleases.Count -ne $ProductIDs.Count) {
+            throw 'A output release version must be specified for each product ID.'
+        }
+    }
+
+    $BaseUri = 'https://api.cisco.com/software/v3.0'
+    $QueryParams = @{}
+
+    if ($PSCmdlet.ParameterSetName -eq 'Pids') {
+        $Uri = '{0}/metadata/pids/{1}/current_releases/{2}/output_releases/{3}' -f $BaseUri, [String]::Join(',', $ProductIDs), [String]::Join(',', $CurrentReleases), [String]::Join(',', $OutputReleases)
+        $QueryParams['page_index'] = $PageIndex
+    } else {
+        $Uri = '{0}/metadata/pid/{1}/image_names/{2}' -f $BaseUri, $ProductID, [String]::Join(',', $ImageNames)
+    }
+
+    try {
+        $Response = & $RequestCommand @RequestCommandBaseParams -Uri $Uri -Method Get -Headers $ApiToken -Body $QueryParams
+    } catch {
+        throw $_
+    }
+
+    switch ($PSBoundParameters['ResponseFormat']) {
+        'WebResponse' { return $Response }
+        'JSON' { return $Response.Content }
+    }
+
+    $ApiResponse = $Response.metadata_response
+    if ($ApiResponse.PSObject.Properties.Name -contains 'asd_metadata_exception') {
+        if ($ApiResponse.asd_metadata_exception.exception_code -eq 'NO_DATA_FOUND') {
+            return
+        } else {
+            throw $ApiResponse.asd_metadata_exception.exception_message
+        }
+    }
+
+    $ApiResponseFlattened = @()
+    foreach ($ApiResponsePid in $ApiResponse.metadata_pid_list) {
+        foreach ($ApiResponseMdfid in $ApiResponsePid.metadata_mdfid_list) {
+            foreach ($ApiResponseSoftware in $ApiResponseMdfid.software_response_list) {
+                foreach ($ApiResponsePlatform in $ApiResponseSoftware.platform_list) {
+                    foreach ($ApiResponseRelease in $ApiResponsePlatform.release_list) {
+                        $ApiResponseRelease | Add-Member -MemberType NoteProperty -Name metadata_trans_id -Value $ApiResponse.metadata_trans_id
+                        $ApiResponseRelease | Add-Member -MemberType NoteProperty -Name pid -Value $ApiResponsePid.pid
+                        $ApiResponseRelease | Add-Member -MemberType NoteProperty -Name mdfid -Value $ApiResponseMdfid.mdfid
+                        $ApiResponseRelease | Add-Member -MemberType NoteProperty -Name mdf_concept_name -Value $ApiResponseMdfid.mdf_concept_name
+                        $ApiResponseRelease | Add-Member -MemberType NoteProperty -Name software_type_id -Value $ApiResponseSoftware.software_type_id
+                        $ApiResponseRelease | Add-Member -MemberType NoteProperty -Name software_type_name -Value $ApiResponseSoftware.software_type_name
+                        $ApiResponseRelease | Add-Member -MemberType NoteProperty -Name operating_platform -Value $ApiResponsePlatform.operating_platform
+                        $ApiResponseRelease.PSObject.TypeNames.Insert(0, 'PSCiscoSupportAPIs.SoftwareRelease')
+                        $ApiResponseFlattened += $ApiResponseRelease
+                    }
+                }
+            }
+        }
+    }
+
+    return $ApiResponseFlattened
+}
+
+Function Get-CiscoSoftwareStatus {
+    <#
+        .SYNOPSIS
+        Retrieve software status information by image name
+
+        .DESCRIPTION
+        This function wraps the Cisco Automated Software Distribution API to allow easy querying from PowerShell.
+
+        .PARAMETER ClientId
+        Use the specified client ID for API authentication.
+
+        This overrides any default specified in $CiscoApiClientId.
+
+        .PARAMETER ClientSecret
+        Use the specified client secret for API authentication.
+
+        This overrides any default specified in $CiscoApiClientSecret.
+
+        .PARAMETER ImageNames
+        Retrieve software status information for the specified image name(s).
+
+        Up to 25 image names can be entered specified as an array of strings.
+
+        .PARAMETER ResponseFormat
+        Format in which to return the API response.
+
+        Valid formats are:
+        - JSON                  The JSON response as a string
+        - PSObject              A PSCustomObject built from the JSON response
+        - WebResponse           The BasicHtmlWebResponseObject returned by Invoke-WebRequest
+
+        The default is PSObject which is optimised for viewing and interacting with on the CLI.
+
+        This may include:
+        - Splitting each record into its own custom PowerShell object
+        - Adding custom types to objects to apply custom view definitions
+        - Removing typically unneeded JSON objects (e.g. pagination records)
+
+        A global default may be specified by setting $CiscoApiResponseFormat.
+
+        .EXAMPLE
+        Get-CiscoSoftwareStatus -ImageNames c2960-lanlitek9-mz.150-2.SE5.bin,mc3810-ik9s-mz.123-9e.bin
+
+        Retrieve software status information for the provided image names.
+
+        .NOTES
+        The provided API credentials must have access to the Cisco Automated Software Distribution API.
+
+        .LINK
+        https://developer.cisco.com/docs/support-apis/#!automated-software-distribution
+    #>
+
+    [CmdletBinding()]
+    Param(
+        [Parameter(Mandatory)]
+        [ValidateCount(1, 25)]
+        [ValidateLength(1, 256)]
+        [String[]]$ImageNames,
+
+        [ValidateSet('JSON', 'PSObject', 'WebResponse')]
+        [String]$ResponseFormat='PSObject',
+
+        [ValidateNotNullOrEmpty()]
+        [String]$ClientId,
+
+        [ValidateNotNullOrEmpty()]
+        [String]$ClientSecret
+    )
+
+    Initialize-CiscoApiRequest
+
+    $BaseUri = 'https://api.cisco.com/software/v3.0'
+    $QueryParams = @{}
+
+    $Uri = '{0}/swstatus/image_names/{1}' -f $BaseUri, [String]::Join(',', $ImageNames)
+
+    try {
+        $Response = & $RequestCommand @RequestCommandBaseParams -Uri $Uri -Method Get -Headers $ApiToken -Body $QueryParams
+    } catch {
+        throw $_
+    }
+
+    switch ($PSBoundParameters['ResponseFormat']) {
+        'WebResponse' { return $Response }
+        'JSON' { return $Response.Content }
+    }
+
+    $ApiResponse = $Response.metadata_List
+    $ApiResponse | ForEach-Object { $_.PSObject.TypeNames.Insert(0, 'PSCiscoSupportAPIs.SoftwareStatus') }
+
+    return $ApiResponse
+}
+#endregion
+
 #region Product Information API
 Function Get-CiscoProductInformation {
     <#
