@@ -290,6 +290,129 @@
             </TableControl>
         </View>
         <!--
+            Service Order Return (RMA) API
+        -->
+        <View>
+            <Name>PSCiscoSupportAPIs.ServiceOrderReturn.Rma</Name>
+            <ViewSelectedBy>
+                <TypeName>PSCiscoSupportAPIs.ServiceOrderReturn.Rma</TypeName>
+            </ViewSelectedBy>
+            <TableControl>
+                <TableHeaders>
+                    <TableColumnHeader>
+                        <Label>RMA No.</Label>
+                    </TableColumnHeader>
+                    <TableColumnHeader>
+                        <Label>Case ID</Label>
+                    </TableColumnHeader>
+                    <TableColumnHeader>
+                        <Label>Order Date</Label>
+                    </TableColumnHeader>
+                    <TableColumnHeader>
+                        <Label>Ship To</Label>
+                    </TableColumnHeader>
+                    <TableColumnHeader>
+                        <Label>Status</Label>
+                    </TableColumnHeader>
+                </TableHeaders>
+                <TableRowEntries>
+                    <TableRowEntry>
+                        <TableColumnItems>
+                            <TableColumnItem>
+                                <PropertyName>rmaNo</PropertyName>
+                            </TableColumnItem>
+                            <TableColumnItem>
+                                <PropertyName>caseId</PropertyName>
+                            </TableColumnItem>
+                            <TableColumnItem>
+                                <PropertyName>orderDate</PropertyName>
+                            </TableColumnItem>
+                            <TableColumnItem>
+                                <ScriptBlock>[String]::Join(', ', (@($_.shipToInfo.address1, $_.shipToInfo.address2, $_.shipToInfo.address3, $_.shipToInfo.address4, $_.shipToInfo.city, $_.shipToInfo.state, $_.shipToInfo.country, $_.shipToInfo.postalCode) | Where-Object { ![String]::IsNullOrWhiteSpace($_) }))</ScriptBlock>
+                            </TableColumnItem>
+                            <TableColumnItem>
+                                <PropertyName>status</PropertyName>
+                            </TableColumnItem>
+                        </TableColumnItems>
+                    </TableRowEntry>
+                </TableRowEntries>
+            </TableControl>
+        </View>
+        <View>
+            <Name>PSCiscoSupportAPIs.ServiceOrderReturn.User</Name>
+            <ViewSelectedBy>
+                <TypeName>PSCiscoSupportAPIs.ServiceOrderReturn.User</TypeName>
+            </ViewSelectedBy>
+            <TableControl>
+                <TableHeaders>
+                    <TableColumnHeader>
+                        <Label>User ID</Label>
+                    </TableColumnHeader>
+                    <TableColumnHeader>
+                        <Label>No. of returns</Label>
+                    </TableColumnHeader>
+                </TableHeaders>
+                <TableRowEntries>
+                    <TableRowEntry>
+                        <TableColumnItems>
+                            <TableColumnItem>
+                                <PropertyName>userId</PropertyName>
+                            </TableColumnItem>
+                            <TableColumnItem>
+                                <PropertyName>returnCount</PropertyName>
+                            </TableColumnItem>
+                        </TableColumnItems>
+                    </TableRowEntry>
+                </TableRowEntries>
+            </TableControl>
+        </View>
+        <View>
+            <Name>PSCiscoSupportAPIs.ServiceOrderReturn.User.Return</Name>
+            <ViewSelectedBy>
+                <TypeName>PSCiscoSupportAPIs.ServiceOrderReturn.User.Return</TypeName>
+            </ViewSelectedBy>
+            <TableControl>
+                <TableHeaders>
+                    <TableColumnHeader>
+                        <Label>RMA No.</Label>
+                    </TableColumnHeader>
+                    <TableColumnHeader>
+                        <Label>Case ID</Label>
+                    </TableColumnHeader>
+                    <TableColumnHeader>
+                        <Label>Order Date</Label>
+                    </TableColumnHeader>
+                    <TableColumnHeader>
+                        <Label>Ship To</Label>
+                    </TableColumnHeader>
+                    <TableColumnHeader>
+                        <Label>Status</Label>
+                    </TableColumnHeader>
+                </TableHeaders>
+                <TableRowEntries>
+                    <TableRowEntry>
+                        <TableColumnItems>
+                            <TableColumnItem>
+                                <PropertyName>rmaNo</PropertyName>
+                            </TableColumnItem>
+                            <TableColumnItem>
+                                <PropertyName>caseId</PropertyName>
+                            </TableColumnItem>
+                            <TableColumnItem>
+                                <PropertyName>orderDate</PropertyName>
+                            </TableColumnItem>
+                            <TableColumnItem>
+                                <ScriptBlock>[String]::Join(', ', (@($_.shippingAddress.address1, $_.shippingAddress.city, $_.shippingAddress.state, $_.shippingAddress.country) | Where-Object { ![String]::IsNullOrWhiteSpace($_) }))</ScriptBlock>
+                            </TableColumnItem>
+                            <TableColumnItem>
+                                <PropertyName>status</PropertyName>
+                            </TableColumnItem>
+                        </TableColumnItems>
+                    </TableRowEntry>
+                </TableRowEntries>
+            </TableControl>
+        </View>
+        <!--
             Software Suggestion API
         -->
         <View>

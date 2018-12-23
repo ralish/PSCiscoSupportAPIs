@@ -598,6 +598,185 @@ Function Get-CiscoProductInformation {
 }
 #endregion
 
+#region Service Order Return (RMA) API
+Function Get-CiscoServiceOrderReturn {
+    <#
+        .SYNOPSIS
+        Retrieve RMAs (Return Material Authorization) by RMA number or user ID
+
+        .DESCRIPTION
+        This function wraps the Cisco Service Order Return (RMA) API to allow easy querying from PowerShell.
+
+        .PARAMETER ClientId
+        Use the specified client ID for API authentication.
+
+        This overrides any default specified in $CiscoApiClientId.
+
+        .PARAMETER ClientSecret
+        Use the specified client secret for API authentication.
+
+        This overrides any default specified in $CiscoApiClientSecret.
+
+        .PARAMETER FromDate
+        Beginning date from which to return results.
+
+        The date should be specified in UTC time.
+
+        .PARAMETER ResponseFormat
+        Format in which to return the API response.
+
+        Valid formats are:
+        - JSON                  The JSON response as a string
+        - PSObject              A PSCustomObject built from the JSON response
+        - WebResponse           The BasicHtmlWebResponseObject returned by Invoke-WebRequest
+
+        The default is PSObject which is optimised for viewing and interacting with on the CLI.
+
+        This may include:
+        - Splitting each record into its own custom PowerShell object
+        - Adding custom types to objects to apply custom view definitions
+        - Removing typically unneeded JSON objects (e.g. pagination records)
+
+        A global default may be specified by setting $CiscoApiResponseFormat.
+
+        .PARAMETER RmaNumber
+        Retrieve details for the specified RMA number.
+
+        .PARAMETER SortBy
+        Sort the results by the specified criteria.
+
+        Valid values are:
+        - OrderDate
+        - Status
+
+        .PARAMETER Status
+        Filter the results on the specified status.
+
+        Valid values are:
+        - Booked
+        - Cancelled
+        - Closed
+        - Hold
+        - Open
+
+        .PARAMETER ToDate
+        End date from which to return results.
+
+        The date should be specified in UTC time.
+
+        .PARAMETER UserID
+        Retrieve details for all RMAs associated with the specified user identifier.
+
+        .EXAMPLE
+        Get-CiscoServiceOrderReturn -RmaNumber 84894022
+
+        Retrieve details for the provided RMA number.
+
+        .EXAMPLE
+        Get-CiscoServiceOrderReturn -UserID svorma8 -FromDate 2013-08-01 -ToDate 2013-08-15
+
+        Retrieve details for all RMAs associated with the user "svorma8" over the provided time period.
+
+        .NOTES
+        The provided API credentials must have access to the Cisco Service Order Return (RMA) API.
+
+        .LINK
+        https://developer.cisco.com/docs/support-apis/#!service-order-return-rma
+    #>
+
+    [CmdletBinding()]
+    Param(
+        [Parameter(ParameterSetName='Rma', Mandatory)]
+        [ValidateRange(1, 9999999999)]
+        [Long]$RmaNumber,
+
+        [Parameter(ParameterSetName='User', Mandatory)]
+        [ValidateLength(1, 20)]
+        [String]$UserID,
+
+        [Parameter(ParameterSetName='User')]
+        [DateTime]$FromDate,
+
+        [Parameter(ParameterSetName='User')]
+        [DateTime]$ToDate,
+
+        [Parameter(ParameterSetName='User')]
+        [ValidateSet('Booked', 'Cancelled', 'Closed', 'Hold', 'Open')]
+        [String]$Status,
+
+        [Parameter(ParameterSetName='User')]
+        [ValidateSet('OrderDate', 'Status')]
+        [String]$SortBy,
+
+        [ValidateSet('JSON', 'PSObject', 'WebResponse')]
+        [String]$ResponseFormat='PSObject',
+
+        [ValidateNotNullOrEmpty()]
+        [String]$ClientId,
+
+        [ValidateNotNullOrEmpty()]
+        [String]$ClientSecret
+    )
+
+    Initialize-CiscoApiRequest
+
+    $BaseUri = 'https://api.cisco.com/return/v1.0'
+    $QueryParams = @{}
+
+    if ($PSCmdlet.ParameterSetName -eq 'Rma') {
+        $Uri = '{0}/returns/rma_numbers/{1}' -f $BaseUri, $RmaNumber
+    } else {
+        $Uri = '{0}/returns/users/user_ids/{1}' -f $BaseUri, $UserID
+
+        if ($PSBoundParameters.ContainsKey('FromDate')) {
+            $QueryParams['fromDate'] = $FromDate.ToString('yyyy-MM-dd')
+        }
+
+        if ($PSBoundParameters.ContainsKey('ToDate')) {
+            $QueryParams['toDate'] = $ToDate.ToString('yyyy-MM-dd')
+        }
+
+        if ($PSBoundParameters.ContainsKey('Status')) {
+            $QueryParams['status'] = $Status.ToLower()
+        }
+
+        if ($PSBoundParameters.ContainsKey('SortBy')) {
+            $QueryParams['sortBy'] = $SortBy.ToLower()
+        }
+    }
+
+    try {
+        $Response = & $RequestCommand @RequestCommandBaseParams -Uri $Uri -Method Get -Headers $ApiToken -Body $QueryParams
+    } catch {
+        throw $_
+    }
+
+    switch ($PSBoundParameters['ResponseFormat']) {
+        'WebResponse' { return $Response }
+        'JSON' { return $Response.Content }
+    }
+
+    if ($PSCmdlet.ParameterSetName -eq 'Rma') {
+        if ($Response.PSObject.Properties.Name -contains 'returns') {
+            $ApiResponse = $Response.returns.RmaRecord
+            $ApiResponse | ForEach-Object { $_.PSObject.TypeNames.Insert(0, 'PSCiscoSupportAPIs.ServiceOrderReturn.Rma') }
+        } else {
+            throw $Response.APIError.Error[0].errorDescription
+        }
+    } else {
+        if ($Response.OrderList.PSObject.Properties.Name -contains 'users') {
+            $ApiResponse = $Response.OrderList.users
+            $ApiResponse | ForEach-Object { $_.PSObject.TypeNames.Insert(0, 'PSCiscoSupportAPIs.ServiceOrderReturn.User') }
+            $ApiResponse.returns | ForEach-Object { $_.PSObject.TypeNames.Insert(0, 'PSCiscoSupportAPIs.ServiceOrderReturn.User.Return') }
+        } else {
+            throw $Response.OrderList.APIError.Error[0].errorDescription
+        }
+    }
+
+    return $ApiResponse
+}
+#endregion
+
 #region Software Suggestion API
 Function Get-CiscoSoftwareSuggestion {
     <#
