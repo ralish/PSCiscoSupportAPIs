@@ -598,6 +598,255 @@ Function Get-CiscoProductInformation {
 }
 #endregion
 
+#region Serial Number to Information API
+Function Get-CiscoCoverageInformation {
+    <#
+        .SYNOPSIS
+        Retrieve coverage information by serial or instance number
+
+        .DESCRIPTION
+        This function wraps the Cisco Serial Number to Information API to allow easy querying from PowerShell.
+
+        .PARAMETER ClientId
+        Use the specified client ID for API authentication.
+
+        This overrides any default specified in $CiscoApiClientId.
+
+        .PARAMETER ClientSecret
+        Use the specified client secret for API authentication.
+
+        This overrides any default specified in $CiscoApiClientSecret.
+
+        .PARAMETER InstanceNumbers
+        Retrieve coverage information associated with the specified instance number(s).
+
+        Up to 75 instance numbers can be entered specified as an array of strings.
+
+        .PARAMETER PageIndex
+        Index number of the page to return.
+
+        If not specified the first page will be returned.
+
+        This parameter is ignored when retrieving coverage information by serial number with a report type of Status or Owner.
+
+        .PARAMETER ReportType
+        The type of information to retrieve for the specified serial number(s).
+
+        Valid values are:
+        - Summary               Coverage status, warranty, and product identifier details
+        - Status                Coverage status
+        - Owner                 Owner coverage status
+
+        The default is Summary information.
+
+        .PARAMETER ResponseFormat
+        Format in which to return the API response.
+
+        Valid formats are:
+        - JSON                  The JSON response as a string
+        - PSObject              A PSCustomObject built from the JSON response
+        - WebResponse           The BasicHtmlWebResponseObject returned by Invoke-WebRequest
+
+        The default is PSObject which is optimised for viewing and interacting with on the CLI.
+
+        This may include:
+        - Splitting each record into its own custom PowerShell object
+        - Adding custom types to objects to apply custom view definitions
+        - Removing typically unneeded JSON objects (e.g. pagination records)
+
+        A global default may be specified by setting $CiscoApiResponseFormat.
+
+        .PARAMETER SerialNumbers
+        Retrieve coverage information associated with the specified serial number(s).
+
+        Up to 75 serial numbers can be entered specified as an array of strings.
+
+        .EXAMPLE
+        Get-CiscoCoverageInformation -SerialNumbers FOC0903N5J9,INM07501EC3
+
+        Retrieve coverage summary information for the provided serial numbers.
+
+        .EXAMPLE
+        Get-CiscoCoverageInformation -SerialNumbers SAL09232Q0Z,32964768 -ReportType Owner
+
+        Retrieve owner coverage status information for the provided serial numbers.
+
+        .NOTES
+        The provided API credentials must have access to the Cisco Serial Number to Information API.
+
+        .LINK
+        https://developer.cisco.com/docs/support-apis/#!serial-number-to-information
+    #>
+
+    [CmdletBinding()]
+    Param(
+        [Parameter(ParameterSetName='Serial', Mandatory)]
+        [ValidateCount(1, 75)]
+        [ValidateLength(1, 40)]
+        [String[]]$SerialNumbers,
+
+        [Parameter(ParameterSetName='Instance', Mandatory)]
+        [ValidateCount(1, 75)]
+        [ValidateLength(1, 40)]
+        [String[]]$InstanceNumbers,
+
+        [Parameter(ParameterSetName='Serial')]
+        [ValidateSet('Owner', 'Status', 'Summary')]
+        [String]$ReportType='Summary',
+
+        [ValidateRange(1, 99)]
+        [Int]$PageIndex=1,
+
+        [ValidateSet('JSON', 'PSObject', 'WebResponse')]
+        [String]$ResponseFormat='PSObject',
+
+        [ValidateNotNullOrEmpty()]
+        [String]$ClientId,
+
+        [ValidateNotNullOrEmpty()]
+        [String]$ClientSecret
+    )
+
+    Initialize-CiscoApiRequest
+
+    $BaseUri = 'https://api.cisco.com/sn2info/v2'
+    $QueryParams = @{}
+
+    if ($PSCmdlet.ParameterSetName -eq 'Serial') {
+        switch ($ReportType) {
+            'Summary' {
+                $Uri = '{0}/coverage/summary/serial_numbers/{1}' -f $BaseUri, [String]::Join(',', $SerialNumbers)
+                $QueryParams['page_index'] = $PageIndex
+            }
+            'Status' { $Uri = '{0}/coverage/status/serial_numbers/{1}' -f $BaseUri, [String]::Join(',', $SerialNumbers) }
+            'Owner' { $Uri = '{0}/coverage/owner_status/serial_numbers/{1}' -f $BaseUri, [String]::Join(',', $SerialNumbers) }
+        }
+    } else {
+        $Uri = '{0}/coverage/summary/instance_numbers/{1}' -f $BaseUri, [String]::Join(',', $InstanceNumbers)
+        $QueryParams['page_index'] = $PageIndex
+    }
+
+    try {
+        $Response = & $RequestCommand @RequestCommandBaseParams -Uri $Uri -Method Get -Headers $ApiToken -Body $QueryParams
+    } catch {
+        throw $_
+    }
+
+    switch ($PSBoundParameters['ResponseFormat']) {
+        'WebResponse' { return $Response }
+        'JSON' { return $Response.Content }
+    }
+
+    if ($PSCmdlet.ParameterSetName -eq 'Serial') {
+        $ApiResponse = $Response.serial_numbers
+
+        switch ($ReportType) {
+            'Summary' { $ApiResponse | ForEach-Object { $_.PSObject.TypeNames.Insert(0, 'PSCiscoSupportAPIs.CoverageInformation.SerialSummary') } }
+            'Status' { $ApiResponse | ForEach-Object { $_.PSObject.TypeNames.Insert(0, 'PSCiscoSupportAPIs.CoverageInformation.SerialStatus') } }
+            'Owner' { $ApiResponse | ForEach-Object { $_.PSObject.TypeNames.Insert(0, 'PSCiscoSupportAPIs.CoverageInformation.SerialOwner') } }
+        }
+    } else {
+        $ApiResponse = $Response.instance_numbers
+        $ApiResponse | ForEach-Object { $_.PSObject.TypeNames.Insert(0, 'PSCiscoSupportAPIs.CoverageInformation.InstanceSummary') }
+    }
+
+    return $ApiResponse
+}
+
+Function Get-CiscoOrderableProductId {
+    <#
+        .SYNOPSIS
+        Retrieve the orderable product identifier by serial number
+
+        .DESCRIPTION
+        This function wraps the Cisco Serial Number to Information API to allow easy querying from PowerShell.
+
+        .PARAMETER ClientId
+        Use the specified client ID for API authentication.
+
+        This overrides any default specified in $CiscoApiClientId.
+
+        .PARAMETER ClientSecret
+        Use the specified client secret for API authentication.
+
+        This overrides any default specified in $CiscoApiClientSecret.
+
+        .PARAMETER ResponseFormat
+        Format in which to return the API response.
+
+        Valid formats are:
+        - JSON                  The JSON response as a string
+        - PSObject              A PSCustomObject built from the JSON response
+        - WebResponse           The BasicHtmlWebResponseObject returned by Invoke-WebRequest
+
+        The default is PSObject which is optimised for viewing and interacting with on the CLI.
+
+        This may include:
+        - Splitting each record into its own custom PowerShell object
+        - Adding custom types to objects to apply custom view definitions
+        - Removing typically unneeded JSON objects (e.g. pagination records)
+
+        A global default may be specified by setting $CiscoApiResponseFormat.
+
+        .PARAMETER SerialNumbers
+        Retrieve the orderable product identifier(s) associated with the specified serial number(s).
+
+        Up to 75 serial numbers can be entered specified as an array of strings.
+
+        .EXAMPLE
+        Get-CiscoOrderableProductId -SerialNumbers FOC10220LK9
+
+        Retrieve the orderable product identifier for the provided serial number.
+
+        .NOTES
+        The provided API credentials must have access to the Cisco Serial Number to Information API.
+
+        .LINK
+        https://developer.cisco.com/docs/support-apis/#!serial-number-to-information
+    #>
+
+    [CmdletBinding()]
+    Param(
+        [Parameter(Mandatory)]
+        [ValidateCount(1, 75)]
+        [ValidateLength(1, 40)]
+        [String[]]$SerialNumbers,
+
+        [ValidateSet('JSON', 'PSObject', 'WebResponse')]
+        [String]$ResponseFormat='PSObject',
+
+        [ValidateNotNullOrEmpty()]
+        [String]$ClientId,
+
+        [ValidateNotNullOrEmpty()]
+        [String]$ClientSecret
+    )
+
+    Initialize-CiscoApiRequest
+
+    $BaseUri = 'https://api.cisco.com/sn2info/v2'
+    $QueryParams = @{}
+
+    $Uri = '{0}/identifiers/orderable/serial_numbers/{1}' -f $BaseUri, [String]::Join(',', $SerialNumbers)
+
+    try {
+        $Response = & $RequestCommand @RequestCommandBaseParams -Uri $Uri -Method Get -Headers $ApiToken -Body $QueryParams
+    } catch {
+        throw $_
+    }
+
+    switch ($PSBoundParameters['ResponseFormat']) {
+        'WebResponse' { return $Response }
+        'JSON' { return $Response.Content }
+    }
+
+    $ApiResponse = $Response.serial_numbers
+    $ApiResponse | ForEach-Object { $_.PSObject.TypeNames.Insert(0, 'PSCiscoSupportAPIs.OrderableProductId') }
+
+    return $ApiResponse
+}
+#endregion
+
 #region Service Order Return (RMA) API
 Function Get-CiscoServiceOrderReturn {
     <#

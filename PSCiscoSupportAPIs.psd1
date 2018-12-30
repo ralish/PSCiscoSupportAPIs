@@ -72,6 +72,9 @@
         'Get-CiscoSoftwareStatus',
         # Product Information API
         'Get-CiscoProductInformation',
+        # Serial Number to Information API
+        'Get-CiscoCoverageInformation',
+        'Get-CiscoOrderableProductId',
         # Service Order Return (RMA) API
         'Get-CiscoServiceOrderReturn',
         # Software Suggestion API

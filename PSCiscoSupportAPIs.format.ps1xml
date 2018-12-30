@@ -290,6 +290,257 @@
             </TableControl>
         </View>
         <!--
+            Serial Number to Information API
+        -->
+        <View>
+            <Name>PSCiscoSupportAPIs.CoverageInformation.InstanceSummary</Name>
+            <ViewSelectedBy>
+                <TypeName>PSCiscoSupportAPIs.CoverageInformation.InstanceSummary</TypeName>
+            </ViewSelectedBy>
+            <TableControl>
+                <TableHeaders>
+                    <TableColumnHeader>
+                        <Label>Instance No.</Label>
+                    </TableColumnHeader>
+                    <TableColumnHeader>
+                        <Label>Serial No.</Label>
+                    </TableColumnHeader>
+                    <TableColumnHeader>
+                        <Label>Warranty Type</Label>
+                    </TableColumnHeader>
+                    <TableColumnHeader>
+                        <Label>Warranty End Date</Label>
+                    </TableColumnHeader>
+                    <TableColumnHeader>
+                        <Label>Is Covered?</Label>
+                    </TableColumnHeader>
+                    <TableColumnHeader>
+                        <Label>Service Contract No.</Label>
+                    </TableColumnHeader>
+                    <TableColumnHeader>
+                        <Label>Service Contract Type</Label>
+                    </TableColumnHeader>
+                    <TableColumnHeader>
+                        <Label>Service Contract End Date</Label>
+                    </TableColumnHeader>
+                    <TableColumnHeader>
+                        <Label>Install Site</Label>
+                    </TableColumnHeader>
+                    <TableColumnHeader>
+                        <Label>Orderable PIDs</Label>
+                    </TableColumnHeader>
+                </TableHeaders>
+                <TableRowEntries>
+                    <TableRowEntry>
+                        <TableColumnItems>
+                            <TableColumnItem>
+                                <PropertyName>instance_number</PropertyName>
+                            </TableColumnItem>
+                            <TableColumnItem>
+                                <PropertyName>sr_no</PropertyName>
+                            </TableColumnItem>
+                            <TableColumnItem>
+                                <PropertyName>warranty_type</PropertyName>
+                            </TableColumnItem>
+                            <TableColumnItem>
+                                <PropertyName>warranty_end_date</PropertyName>
+                            </TableColumnItem>
+                            <TableColumnItem>
+                                <PropertyName>is_covered</PropertyName>
+                            </TableColumnItem>
+                            <TableColumnItem>
+                                <PropertyName>service_contract_number</PropertyName>
+                            </TableColumnItem>
+                            <TableColumnItem>
+                                <PropertyName>service_line_descr</PropertyName>
+                            </TableColumnItem>
+                            <TableColumnItem>
+                                <PropertyName>covered_product_line_end_date</PropertyName>
+                            </TableColumnItem>
+                            <TableColumnItem>
+                                <ScriptBlock>[String]::Join(', ', (@($_.contract_site_address1, $_.contract_site_city, $_.contract_site_state_province, $_.contract_site_country, $_.contract_site_postal_code) | Where-Object { ![String]::IsNullOrWhiteSpace($_) }))</ScriptBlock>
+                            </TableColumnItem>
+                            <TableColumnItem>
+                                <ScriptBlock>[String]::Join(', ', ($_.orderable_pid_list.orderable_pid | Sort-Object -Unique))</ScriptBlock>
+                            </TableColumnItem>
+                        </TableColumnItems>
+                    </TableRowEntry>
+                </TableRowEntries>
+            </TableControl>
+        </View>
+        <View>
+            <Name>PSCiscoSupportAPIs.CoverageInformation.SerialOwner</Name>
+            <ViewSelectedBy>
+                <TypeName>PSCiscoSupportAPIs.CoverageInformation.SerialOwner</TypeName>
+            </ViewSelectedBy>
+            <TableControl>
+                <TableHeaders>
+                    <TableColumnHeader>
+                        <Label>Serial No.</Label>
+                    </TableColumnHeader>
+                    <TableColumnHeader>
+                        <Label>Is Covered?</Label>
+                    </TableColumnHeader>
+                    <TableColumnHeader>
+                        <Label>Coverage End Date</Label>
+                    </TableColumnHeader>
+                    <TableColumnHeader>
+                        <Label>Is Associated?</Label>
+                    </TableColumnHeader>
+                </TableHeaders>
+                <TableRowEntries>
+                    <TableRowEntry>
+                        <TableColumnItems>
+                            <TableColumnItem>
+                                <PropertyName>sr_no</PropertyName>
+                            </TableColumnItem>
+                            <TableColumnItem>
+                                <PropertyName>is_covered</PropertyName>
+                            </TableColumnItem>
+                            <TableColumnItem>
+                                <PropertyName>coverage_end_date</PropertyName>
+                            </TableColumnItem>
+                            <TableColumnItem>
+                                <PropertyName>sr_no_owner</PropertyName>
+                            </TableColumnItem>
+                        </TableColumnItems>
+                    </TableRowEntry>
+                </TableRowEntries>
+            </TableControl>
+        </View>
+        <View>
+            <Name>PSCiscoSupportAPIs.CoverageInformation.SerialStatus</Name>
+            <ViewSelectedBy>
+                <TypeName>PSCiscoSupportAPIs.CoverageInformation.SerialStatus</TypeName>
+            </ViewSelectedBy>
+            <TableControl>
+                <TableHeaders>
+                    <TableColumnHeader>
+                        <Label>Serial No.</Label>
+                    </TableColumnHeader>
+                    <TableColumnHeader>
+                        <Label>Is Covered?</Label>
+                    </TableColumnHeader>
+                    <TableColumnHeader>
+                        <Label>Coverage End Date</Label>
+                    </TableColumnHeader>
+                </TableHeaders>
+                <TableRowEntries>
+                    <TableRowEntry>
+                        <TableColumnItems>
+                            <TableColumnItem>
+                                <PropertyName>sr_no</PropertyName>
+                            </TableColumnItem>
+                            <TableColumnItem>
+                                <PropertyName>is_covered</PropertyName>
+                            </TableColumnItem>
+                            <TableColumnItem>
+                                <PropertyName>coverage_end_date</PropertyName>
+                            </TableColumnItem>
+                        </TableColumnItems>
+                    </TableRowEntry>
+                </TableRowEntries>
+            </TableControl>
+        </View>
+        <View>
+            <Name>PSCiscoSupportAPIs.CoverageInformation.SerialSummary</Name>
+            <ViewSelectedBy>
+                <TypeName>PSCiscoSupportAPIs.CoverageInformation.SerialSummary</TypeName>
+            </ViewSelectedBy>
+            <TableControl>
+                <TableHeaders>
+                    <TableColumnHeader>
+                        <Label>Serial No.</Label>
+                    </TableColumnHeader>
+                    <TableColumnHeader>
+                        <Label>Warranty Type</Label>
+                    </TableColumnHeader>
+                    <TableColumnHeader>
+                        <Label>Warranty End Date</Label>
+                    </TableColumnHeader>
+                    <TableColumnHeader>
+                        <Label>Is Covered?</Label>
+                    </TableColumnHeader>
+                    <TableColumnHeader>
+                        <Label>Service Contract No.</Label>
+                    </TableColumnHeader>
+                    <TableColumnHeader>
+                        <Label>Service Contract Type</Label>
+                    </TableColumnHeader>
+                    <TableColumnHeader>
+                        <Label>Service Contract End Date</Label>
+                    </TableColumnHeader>
+                    <TableColumnHeader>
+                        <Label>Install Site</Label>
+                    </TableColumnHeader>
+                    <TableColumnHeader>
+                        <Label>Orderable PIDs</Label>
+                    </TableColumnHeader>
+                </TableHeaders>
+                <TableRowEntries>
+                    <TableRowEntry>
+                        <TableColumnItems>
+                            <TableColumnItem>
+                                <PropertyName>sr_no</PropertyName>
+                            </TableColumnItem>
+                            <TableColumnItem>
+                                <PropertyName>warranty_type</PropertyName>
+                            </TableColumnItem>
+                            <TableColumnItem>
+                                <PropertyName>warranty_end_date</PropertyName>
+                            </TableColumnItem>
+                            <TableColumnItem>
+                                <PropertyName>is_covered</PropertyName>
+                            </TableColumnItem>
+                            <TableColumnItem>
+                                <PropertyName>service_contract_number</PropertyName>
+                            </TableColumnItem>
+                            <TableColumnItem>
+                                <PropertyName>service_line_descr</PropertyName>
+                            </TableColumnItem>
+                            <TableColumnItem>
+                                <PropertyName>covered_product_line_end_date</PropertyName>
+                            </TableColumnItem>
+                            <TableColumnItem>
+                                <ScriptBlock>[String]::Join(', ', (@($_.contract_site_address1, $_.contract_site_city, $_.contract_site_state_province, $_.contract_site_country) | Where-Object { ![String]::IsNullOrWhiteSpace($_) }))</ScriptBlock>
+                            </TableColumnItem>
+                            <TableColumnItem>
+                                <ScriptBlock>[String]::Join(', ', ($_.orderable_pid_list.orderable_pid | Sort-Object -Unique))</ScriptBlock>
+                            </TableColumnItem>
+                        </TableColumnItems>
+                    </TableRowEntry>
+                </TableRowEntries>
+            </TableControl>
+        </View>
+        <View>
+            <Name>PSCiscoSupportAPIs.OrderableProductId</Name>
+            <ViewSelectedBy>
+                <TypeName>PSCiscoSupportAPIs.OrderableProductId</TypeName>
+            </ViewSelectedBy>
+            <TableControl>
+                <TableHeaders>
+                    <TableColumnHeader>
+                        <Label>Serial No.</Label>
+                    </TableColumnHeader>
+                    <TableColumnHeader>
+                        <Label>Orderable PIDs</Label>
+                    </TableColumnHeader>
+                </TableHeaders>
+                <TableRowEntries>
+                    <TableRowEntry>
+                        <TableColumnItems>
+                            <TableColumnItem>
+                                <PropertyName>sr_no</PropertyName>
+                            </TableColumnItem>
+                            <TableColumnItem>
+                                <ScriptBlock>[String]::Join(', ', ($_.orderable_pid_list.orderable_pid | Sort-Object -Unique))</ScriptBlock>
+                            </TableColumnItem>
+                        </TableColumnItems>
+                    </TableRowEntry>
+                </TableRowEntries>
+            </TableControl>
+        </View>
+        <!--
             Service Order Return (RMA) API
         -->
         <View>
