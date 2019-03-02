@@ -1,3 +1,8 @@
 {
+    "devskim.ignoreRulesList": [
+        // Restricted functions
+        "DS104456"
+    ],
+
     "powershell.scriptAnalysis.settingsPath": "PSScriptAnalyzerSettings.psd1"
 }
