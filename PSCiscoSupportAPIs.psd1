@@ -28,20 +28,20 @@
     # Description of the functionality provided by this module
     Description = 'PowerShell interface to the Cisco Support APIs'
 
-    # Minimum version of the Windows PowerShell engine required by this module
+    # Minimum version of the PowerShell engine required by this module
     PowerShellVersion = '3.0'
 
-    # Name of the Windows PowerShell host required by this module
+    # Name of the PowerShell host required by this module
     # PowerShellHostName = ''
 
-    # Minimum version of the Windows PowerShell host required by this module
+    # Minimum version of the PowerShell host required by this module
     # PowerShellHostVersion = ''
 
     # Minimum version of Microsoft .NET Framework required by this module. This prerequisite is valid for the PowerShell Desktop edition only.
     # DotNetFrameworkVersion = ''
 
     # Minimum version of the common language runtime (CLR) required by this module. This prerequisite is valid for the PowerShell Desktop edition only.
-    # CLRVersion = ''
+    # ClrVersion = ''
 
     # Processor architecture (None, X86, Amd64) required by this module
     # ProcessorArchitecture = ''
@@ -105,7 +105,10 @@
         PSData = @{
 
             # Tags applied to this module. These help with module discovery in online galleries.
-            Tags = @('cisco')
+            Tags = @(
+                'cisco'
+                'PSEdition_Desktop', 'PSEdition_Core'
+            )
 
             # A URL to the license for this module.
             LicenseUri = 'https://github.com/ralish/PSCiscoSupportAPIs/blob/stable/LICENSE'
@@ -118,6 +121,15 @@
 
             # ReleaseNotes of this module
             ReleaseNotes = 'https://github.com/ralish/PSCiscoSupportAPIs/blob/stable/CHANGELOG.md'
+
+            # Prerelease string of this module
+            # Prerelease = ''
+
+            # Flag to indicate whether the module requires explicit user acceptance for install/update/save
+            # RequireLicenseAcceptance = $false
+
+            # External dependent modules of this module
+            # ExternalModuleDependencies = @()
 
         } # End of PSData hashtable
 
