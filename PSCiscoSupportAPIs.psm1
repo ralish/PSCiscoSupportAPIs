@@ -1,6 +1,8 @@
 # See the help for Set-StrictMode for the full details on what this enables.
 Set-StrictMode -Version 2.0
 
+#region Internal
+
 Function Initialize-CiscoApiRequest {
     [CmdletBinding()]
     Param()
@@ -22,7 +24,7 @@ Function Initialize-CiscoApiRequest {
     }
 
     $script:RequestCommand = 'Invoke-RestMethod'
-    $script:RequestCommandBaseParams = @{}
+    $script:RequestCommandBaseParams = @{ }
 
     if ($CallerParams['ResponseFormat'] -ne 'PSObject') {
         $script:RequestCommand = 'Invoke-WebRequest'
@@ -41,7 +43,6 @@ Function Initialize-CiscoApiRequest {
 # https://apiconsole.cisco.com/files/Token_Access.pdf
 Function Get-CiscoApiAccessToken {
     [CmdletBinding()]
-    [OutputType([Collections.Hashtable])]
     Param(
         [ValidateNotNullOrEmpty()]
         [String]$ClientId,
@@ -74,13 +75,16 @@ Function Get-CiscoApiAccessToken {
     $Response = Invoke-RestMethod -Uri $Uri -Method Post
 
     $AuthzHeader = @{
-        Authorization=('{0} {1}' -f $Response.token_type, $Response.access_token)
+        Authorization = ('{0} {1}' -f $Response.token_type, $Response.access_token)
     }
 
     return $AuthzHeader
 }
 
+#endregion
+
 #region Automated Software Distribution API
+
 Function Get-CiscoSoftwareChecksum {
     <#
         .SYNOPSIS
@@ -141,7 +145,7 @@ Function Get-CiscoSoftwareChecksum {
         [String[]]$ImageNames,
 
         [ValidateSet('JSON', 'PSObject', 'WebResponse')]
-        [String]$ResponseFormat='PSObject',
+        [String]$ResponseFormat = 'PSObject',
 
         [ValidateNotNullOrEmpty()]
         [String]$ClientId,
@@ -153,7 +157,7 @@ Function Get-CiscoSoftwareChecksum {
     Initialize-CiscoApiRequest
 
     $BaseUri = 'https://api.cisco.com/software/v3.0'
-    $QueryParams = @{}
+    $QueryParams = @{ }
 
     $Uri = '{0}/checksum/image_names/{1}' -f $BaseUri, [String]::Join(',', $ImageNames)
 
@@ -260,36 +264,36 @@ Function Get-CiscoSoftwareRelease {
 
     [CmdletBinding()]
     Param(
-        [Parameter(ParameterSetName='Pids', Mandatory)]
+        [Parameter(ParameterSetName = 'Pids', Mandatory)]
         [ValidateCount(1, 5)]
         [ValidateLength(1, 20)]
         [String[]]$ProductIDs,
 
-        [Parameter(ParameterSetName='Pids', Mandatory)]
+        [Parameter(ParameterSetName = 'Pids', Mandatory)]
         [ValidateCount(1, 5)]
         [ValidateLength(1, 20)]
         [String[]]$CurrentReleases,
 
-        [Parameter(ParameterSetName='Pids', Mandatory)]
+        [Parameter(ParameterSetName = 'Pids', Mandatory)]
         [ValidateCount(1, 5)]
         [ValidateSet('Above', 'Latest')]
         [String[]]$OutputReleases,
 
-        [Parameter(ParameterSetName='Pid', Mandatory)]
+        [Parameter(ParameterSetName = 'Pid', Mandatory)]
         [ValidateLength(1, 20)]
         [String]$ProductID,
 
-        [Parameter(ParameterSetName='Pid', Mandatory)]
+        [Parameter(ParameterSetName = 'Pid', Mandatory)]
         [ValidateCount(1, 25)]
         [ValidateLength(1, 256)]
         [String[]]$ImageNames,
 
-        [Parameter(ParameterSetName='Pids')]
+        [Parameter(ParameterSetName = 'Pids')]
         [ValidateRange(1, 99999)]
-        [Int]$PageIndex=1,
+        [Int]$PageIndex = 1,
 
         [ValidateSet('JSON', 'PSObject', 'WebResponse')]
-        [String]$ResponseFormat='PSObject',
+        [String]$ResponseFormat = 'PSObject',
 
         [ValidateNotNullOrEmpty()]
         [String]$ClientId,
@@ -309,7 +313,7 @@ Function Get-CiscoSoftwareRelease {
     }
 
     $BaseUri = 'https://api.cisco.com/software/v3.0'
-    $QueryParams = @{}
+    $QueryParams = @{ }
 
     if ($PSCmdlet.ParameterSetName -eq 'Pids') {
         $Uri = '{0}/metadata/pids/{1}/current_releases/{2}/output_releases/{3}' -f $BaseUri, [String]::Join(',', $ProductIDs), [String]::Join(',', $CurrentReleases), [String]::Join(',', $OutputReleases)
@@ -422,7 +426,7 @@ Function Get-CiscoSoftwareStatus {
         [String[]]$ImageNames,
 
         [ValidateSet('JSON', 'PSObject', 'WebResponse')]
-        [String]$ResponseFormat='PSObject',
+        [String]$ResponseFormat = 'PSObject',
 
         [ValidateNotNullOrEmpty()]
         [String]$ClientId,
@@ -434,7 +438,7 @@ Function Get-CiscoSoftwareStatus {
     Initialize-CiscoApiRequest
 
     $BaseUri = 'https://api.cisco.com/software/v3.0'
-    $QueryParams = @{}
+    $QueryParams = @{ }
 
     $Uri = '{0}/swstatus/image_names/{1}' -f $BaseUri, [String]::Join(',', $ImageNames)
 
@@ -454,9 +458,11 @@ Function Get-CiscoSoftwareStatus {
 
     return $ApiResponse
 }
+
 #endregion
 
 #region Product Information API
+
 Function Get-CiscoProductInformation {
     <#
         .SYNOPSIS
@@ -529,24 +535,24 @@ Function Get-CiscoProductInformation {
 
     [CmdletBinding()]
     Param(
-        [Parameter(ParameterSetName='Serial', Mandatory)]
+        [Parameter(ParameterSetName = 'Serial', Mandatory)]
         [ValidateCount(1, 5)]
         [ValidateLength(1, 40)]
         [String[]]$SerialNumbers,
 
-        [Parameter(ParameterSetName='Pid', Mandatory)]
+        [Parameter(ParameterSetName = 'Pid', Mandatory)]
         [ValidateCount(1, 5)]
         [ValidateLength(1, 40)]
         [String[]]$ProductIDs,
 
-        [Parameter(ParameterSetName='Pid')]
+        [Parameter(ParameterSetName = 'Pid')]
         [Switch]$MetadataFramework,
 
         [ValidateRange(1, 99)]
-        [Int]$PageIndex=1,
+        [Int]$PageIndex = 1,
 
         [ValidateSet('JSON', 'PSObject', 'WebResponse')]
-        [String]$ResponseFormat='PSObject',
+        [String]$ResponseFormat = 'PSObject',
 
         [ValidateNotNullOrEmpty()]
         [String]$ClientId,
@@ -596,9 +602,11 @@ Function Get-CiscoProductInformation {
 
     return $ApiResponse
 }
+
 #endregion
 
 #region Serial Number to Information API
+
 Function Get-CiscoCoverageInformation {
     <#
         .SYNOPSIS
@@ -680,25 +688,25 @@ Function Get-CiscoCoverageInformation {
 
     [CmdletBinding()]
     Param(
-        [Parameter(ParameterSetName='Serial', Mandatory)]
+        [Parameter(ParameterSetName = 'Serial', Mandatory)]
         [ValidateCount(1, 75)]
         [ValidateLength(1, 40)]
         [String[]]$SerialNumbers,
 
-        [Parameter(ParameterSetName='Instance', Mandatory)]
+        [Parameter(ParameterSetName = 'Instance', Mandatory)]
         [ValidateCount(1, 75)]
         [ValidateLength(1, 40)]
         [String[]]$InstanceNumbers,
 
-        [Parameter(ParameterSetName='Serial')]
+        [Parameter(ParameterSetName = 'Serial')]
         [ValidateSet('Owner', 'Status', 'Summary')]
-        [String]$ReportType='Summary',
+        [String]$ReportType = 'Summary',
 
         [ValidateRange(1, 99)]
-        [Int]$PageIndex=1,
+        [Int]$PageIndex = 1,
 
         [ValidateSet('JSON', 'PSObject', 'WebResponse')]
-        [String]$ResponseFormat='PSObject',
+        [String]$ResponseFormat = 'PSObject',
 
         [ValidateNotNullOrEmpty()]
         [String]$ClientId,
@@ -710,7 +718,7 @@ Function Get-CiscoCoverageInformation {
     Initialize-CiscoApiRequest
 
     $BaseUri = 'https://api.cisco.com/sn2info/v2'
-    $QueryParams = @{}
+    $QueryParams = @{ }
 
     if ($PSCmdlet.ParameterSetName -eq 'Serial') {
         switch ($ReportType) {
@@ -813,7 +821,7 @@ Function Get-CiscoOrderableProductId {
         [String[]]$SerialNumbers,
 
         [ValidateSet('JSON', 'PSObject', 'WebResponse')]
-        [String]$ResponseFormat='PSObject',
+        [String]$ResponseFormat = 'PSObject',
 
         [ValidateNotNullOrEmpty()]
         [String]$ClientId,
@@ -825,7 +833,7 @@ Function Get-CiscoOrderableProductId {
     Initialize-CiscoApiRequest
 
     $BaseUri = 'https://api.cisco.com/sn2info/v2'
-    $QueryParams = @{}
+    $QueryParams = @{ }
 
     $Uri = '{0}/identifiers/orderable/serial_numbers/{1}' -f $BaseUri, [String]::Join(',', $SerialNumbers)
 
@@ -845,9 +853,11 @@ Function Get-CiscoOrderableProductId {
 
     return $ApiResponse
 }
+
 #endregion
 
 #region Service Order Return (RMA) API
+
 Function Get-CiscoServiceOrderReturn {
     <#
         .SYNOPSIS
@@ -935,30 +945,30 @@ Function Get-CiscoServiceOrderReturn {
 
     [CmdletBinding()]
     Param(
-        [Parameter(ParameterSetName='Rma', Mandatory)]
+        [Parameter(ParameterSetName = 'Rma', Mandatory)]
         [ValidateRange(1, 9999999999)]
         [Long]$RmaNumber,
 
-        [Parameter(ParameterSetName='User', Mandatory)]
+        [Parameter(ParameterSetName = 'User', Mandatory)]
         [ValidateLength(1, 20)]
         [String]$UserID,
 
-        [Parameter(ParameterSetName='User')]
+        [Parameter(ParameterSetName = 'User')]
         [DateTime]$FromDate,
 
-        [Parameter(ParameterSetName='User')]
+        [Parameter(ParameterSetName = 'User')]
         [DateTime]$ToDate,
 
-        [Parameter(ParameterSetName='User')]
+        [Parameter(ParameterSetName = 'User')]
         [ValidateSet('Booked', 'Cancelled', 'Closed', 'Hold', 'Open')]
         [String]$Status,
 
-        [Parameter(ParameterSetName='User')]
+        [Parameter(ParameterSetName = 'User')]
         [ValidateSet('OrderDate', 'Status')]
         [String]$SortBy,
 
         [ValidateSet('JSON', 'PSObject', 'WebResponse')]
-        [String]$ResponseFormat='PSObject',
+        [String]$ResponseFormat = 'PSObject',
 
         [ValidateNotNullOrEmpty()]
         [String]$ClientId,
@@ -970,7 +980,7 @@ Function Get-CiscoServiceOrderReturn {
     Initialize-CiscoApiRequest
 
     $BaseUri = 'https://api.cisco.com/return/v1.0'
-    $QueryParams = @{}
+    $QueryParams = @{ }
 
     if ($PSCmdlet.ParameterSetName -eq 'Rma') {
         $Uri = '{0}/returns/rma_numbers/{1}' -f $BaseUri, $RmaNumber
@@ -1024,9 +1034,11 @@ Function Get-CiscoServiceOrderReturn {
 
     return $ApiResponse
 }
+
 #endregion
 
 #region Software Suggestion API
+
 Function Get-CiscoSoftwareSuggestion {
     <#
         .SYNOPSIS
@@ -1123,52 +1135,52 @@ Function Get-CiscoSoftwareSuggestion {
 
     [CmdletBinding()]
     Param(
-        [Parameter(ParameterSetName='Pids', Mandatory)]
+        [Parameter(ParameterSetName = 'Pids', Mandatory)]
         [ValidateCount(1, 10)]
         [ValidateLength(1, 20)]
         [String[]]$ProductIDs,
 
-        [Parameter(ParameterSetName='Pid', Mandatory)]
+        [Parameter(ParameterSetName = 'Pid', Mandatory)]
         [ValidateLength(1, 20)]
         [String]$ProductID,
 
-        [Parameter(ParameterSetName='MdfIds', Mandatory)]
+        [Parameter(ParameterSetName = 'MdfIds', Mandatory)]
         [ValidateCount(1, 10)]
         [ValidateLength(1, 20)]
         [String[]]$MdfIDs,
 
-        [Parameter(ParameterSetName='MdfId', Mandatory)]
+        [Parameter(ParameterSetName = 'MdfId', Mandatory)]
         [ValidateLength(1, 20)]
         [String]$MdfID,
 
-        [Parameter(ParameterSetName='Pids')]
-        [Parameter(ParameterSetName='MdfIds')]
+        [Parameter(ParameterSetName = 'Pids')]
+        [Parameter(ParameterSetName = 'MdfIds')]
         [Switch]$IncludeImages,
 
-        [Parameter(ParameterSetName='Pid')]
-        [Parameter(ParameterSetName='MdfId')]
+        [Parameter(ParameterSetName = 'Pid')]
+        [Parameter(ParameterSetName = 'MdfId')]
         [ValidateLength(1, 59)]
         [String]$CurrentImage,
 
-        [Parameter(ParameterSetName='Pid')]
-        [Parameter(ParameterSetName='MdfId')]
+        [Parameter(ParameterSetName = 'Pid')]
+        [Parameter(ParameterSetName = 'MdfId')]
         [ValidateLength(1, 15)]
         [String]$CurrentRelease,
 
-        [Parameter(ParameterSetName='Pid')]
-        [Parameter(ParameterSetName='MdfId')]
+        [Parameter(ParameterSetName = 'Pid')]
+        [Parameter(ParameterSetName = 'MdfId')]
         [ValidateCount(1, 10)]
         [String[]]$SupportedFeatures,
 
-        [Parameter(ParameterSetName='Pid')]
-        [Parameter(ParameterSetName='MdfId')]
+        [Parameter(ParameterSetName = 'Pid')]
+        [Parameter(ParameterSetName = 'MdfId')]
         [String[]]$SupportedHardware,
 
         [ValidateRange(1, 9999)]
-        [Int]$PageIndex=1,
+        [Int]$PageIndex = 1,
 
         [ValidateSet('JSON', 'PSObject', 'WebResponse')]
-        [String]$ResponseFormat='PSObject',
+        [String]$ResponseFormat = 'PSObject',
 
         [ValidateNotNullOrEmpty()]
         [String]$ClientId,
@@ -1257,4 +1269,5 @@ Function Get-CiscoSoftwareSuggestion {
 
     return $ApiResponse
 }
+
 #endregion
