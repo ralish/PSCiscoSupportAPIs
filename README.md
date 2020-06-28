@@ -3,6 +3,13 @@ PSCiscoSupportAPIs
 
 A PowerShell interface to the [Cisco Support APIs](https://developer.cisco.com/site/support-apis/).
 
+- [Requirements](#requirements)
+- [Installing](#installing)
+- [Configuring](#configuring)
+- [API endpoints](#api-endpoints)
+- [Troubleshooting](#troubleshooting)
+- [License](#license)
+
 Requirements
 ------------
 
