@@ -23,20 +23,20 @@ Function Initialize-CiscoApiRequest {
         }
     }
 
-    $script:RequestCommand = 'Invoke-RestMethod'
-    $script:RequestCommandBaseParams = @{ }
+    $Script:RequestCommand = 'Invoke-RestMethod'
+    $Script:RequestCommandBaseParams = @{ }
 
     if ($CallerParams['ResponseFormat'] -ne 'PSObject') {
-        $script:RequestCommand = 'Invoke-WebRequest'
-        $script:RequestCommandBaseParams['UseBasicParsing'] = $true
+        $Script:RequestCommand = 'Invoke-WebRequest'
+        $Script:RequestCommandBaseParams['UseBasicParsing'] = $true
     }
 
     if ($CallerParams.ContainsKey('ClientId') -xor $CallerParams.ContainsKey('ClientSecret')) {
         throw 'You must provide both the ClientId and ClientSecret parameters or neither.'
     } elseif ($CallerParams.ContainsKey('ClientId') -and $CallerParams.ContainsKey('ClientSecret')) {
-        $script:ApiToken = Get-CiscoApiAccessToken -ClientId $CallerParams['ClientId'] -ClientSecret $CallerParams['ClientSecret']
+        $Script:ApiToken = Get-CiscoApiAccessToken -ClientId $CallerParams['ClientId'] -ClientSecret $CallerParams['ClientSecret']
     } else {
-        $script:ApiToken = Get-CiscoApiAccessToken
+        $Script:ApiToken = Get-CiscoApiAccessToken
     }
 }
 
@@ -334,7 +334,7 @@ Function Get-CiscoSoftwareRelease {
     }
 
     $ApiResponse = $Response.metadata_response
-    if ($ApiResponse.PSObject.Properties.Name -contains 'asd_metadata_exception') {
+    if ($ApiResponse.PSObject.Properties['asd_metadata_exception']) {
         if ($ApiResponse.asd_metadata_exception.exception_code -eq 'NO_DATA_FOUND') {
             return
         } else {
@@ -1016,14 +1016,14 @@ Function Get-CiscoServiceOrderReturn {
     }
 
     if ($PSCmdlet.ParameterSetName -eq 'Rma') {
-        if ($Response.PSObject.Properties.Name -contains 'returns') {
+        if ($Response.PSObject.Properties['returns']) {
             $ApiResponse = $Response.returns.RmaRecord
             $ApiResponse | ForEach-Object { $_.PSObject.TypeNames.Insert(0, 'PSCiscoSupportAPIs.ServiceOrderReturn.Rma') }
         } else {
             throw $Response.APIError.Error[0].errorDescription
         }
     } else {
-        if ($Response.OrderList.PSObject.Properties.Name -contains 'users') {
+        if ($Response.OrderList.PSObject.Properties['users']) {
             $ApiResponse = $Response.OrderList.users
             $ApiResponse | ForEach-Object { $_.PSObject.TypeNames.Insert(0, 'PSCiscoSupportAPIs.ServiceOrderReturn.User') }
             $ApiResponse.returns | ForEach-Object { $_.PSObject.TypeNames.Insert(0, 'PSCiscoSupportAPIs.ServiceOrderReturn.User.Return') }
