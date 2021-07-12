@@ -5,6 +5,8 @@ PSCiscoSupportAPIs
 [![pwsh dl](https://img.shields.io/powershellgallery/dt/PSCiscoSupportAPIs)](https://www.powershellgallery.com/packages/PSCiscoSupportAPIs)
 [![license](https://img.shields.io/github/license/ralish/PSCiscoSupportAPIs)](https://choosealicense.com/licenses/mit/)
 
+[![Open in Visual Studio Code](https://open.vscode.dev/badges/open-in-vscode.svg)](https://open.vscode.dev/ralish/PSCiscoSupportAPIs)
+
 A PowerShell interface to the [Cisco Support APIs](https://developer.cisco.com/site/support-apis/).
 
 - [Requirements](#requirements)
