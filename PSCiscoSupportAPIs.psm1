@@ -24,7 +24,7 @@ Function Initialize-CiscoApiRequest {
     }
 
     $Script:RequestCommand = 'Invoke-RestMethod'
-    $Script:RequestCommandBaseParams = @{ }
+    $Script:RequestCommandBaseParams = @{}
 
     if ($CallerParams['ResponseFormat'] -ne 'PSObject') {
         $Script:RequestCommand = 'Invoke-WebRequest'
@@ -157,7 +157,7 @@ Function Get-CiscoSoftwareChecksum {
     Initialize-CiscoApiRequest
 
     $BaseUri = 'https://api.cisco.com/software/v3.0'
-    $QueryParams = @{ }
+    $QueryParams = @{}
 
     $Uri = '{0}/checksum/image_names/{1}' -f $BaseUri, [String]::Join(',', $ImageNames)
 
@@ -313,7 +313,7 @@ Function Get-CiscoSoftwareRelease {
     }
 
     $BaseUri = 'https://api.cisco.com/software/v3.0'
-    $QueryParams = @{ }
+    $QueryParams = @{}
 
     if ($PSCmdlet.ParameterSetName -eq 'Pids') {
         $Uri = '{0}/metadata/pids/{1}/current_releases/{2}/output_releases/{3}' -f $BaseUri, [String]::Join(',', $ProductIDs), [String]::Join(',', $CurrentReleases), [String]::Join(',', $OutputReleases)
@@ -438,7 +438,7 @@ Function Get-CiscoSoftwareStatus {
     Initialize-CiscoApiRequest
 
     $BaseUri = 'https://api.cisco.com/software/v3.0'
-    $QueryParams = @{ }
+    $QueryParams = @{}
 
     $Uri = '{0}/swstatus/image_names/{1}' -f $BaseUri, [String]::Join(',', $ImageNames)
 
@@ -718,7 +718,7 @@ Function Get-CiscoCoverageInformation {
     Initialize-CiscoApiRequest
 
     $BaseUri = 'https://api.cisco.com/sn2info/v2'
-    $QueryParams = @{ }
+    $QueryParams = @{}
 
     if ($PSCmdlet.ParameterSetName -eq 'Serial') {
         switch ($ReportType) {
@@ -833,7 +833,7 @@ Function Get-CiscoOrderableProductId {
     Initialize-CiscoApiRequest
 
     $BaseUri = 'https://api.cisco.com/sn2info/v2'
-    $QueryParams = @{ }
+    $QueryParams = @{}
 
     $Uri = '{0}/identifiers/orderable/serial_numbers/{1}' -f $BaseUri, [String]::Join(',', $SerialNumbers)
 
@@ -980,7 +980,7 @@ Function Get-CiscoServiceOrderReturn {
     Initialize-CiscoApiRequest
 
     $BaseUri = 'https://api.cisco.com/return/v1.0'
-    $QueryParams = @{ }
+    $QueryParams = @{}
 
     if ($PSCmdlet.ParameterSetName -eq 'Rma') {
         $Uri = '{0}/returns/rma_numbers/{1}' -f $BaseUri, $RmaNumber
