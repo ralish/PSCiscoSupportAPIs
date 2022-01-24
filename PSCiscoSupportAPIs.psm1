@@ -85,10 +85,10 @@ Function Get-CiscoApiAccessToken {
 
 #region Automated Software Distribution API
 
-Function Get-CiscoSoftwareChecksum {
+Function Get-CiscoSoftwareDownload {
     <#
         .SYNOPSIS
-        Retrieve software checksum information by image name
+        Retrieve software download URLs by product ID and image names
 
         .DESCRIPTION
         This function wraps the Cisco Automated Software Distribution API to allow easy querying from PowerShell.
@@ -104,9 +104,18 @@ Function Get-CiscoSoftwareChecksum {
         This overrides any default specified in $CiscoApiClientSecret.
 
         .PARAMETER ImageNames
-        Retrieve software checksum information for the specified image name(s).
+        Retrieve software download URLs for the specified image names.
 
-        Up to five image names can be entered specified as an array of strings.
+        Up to 5 image names can be entered specified as an array of strings.
+
+        .PARAMETER MdfId
+        Metadata framework identifier for which to retrieve software download URLs.
+
+        .PARAMETER MetadataTransId
+        Metadata transaction identifier for the request returned by Get-CiscoSoftwareRelease.
+
+        .PARAMETER ProductId
+        Product identifier for which to retrieve software download URLs.
 
         .PARAMETER ResponseFormat
         Format in which to return the API response.
@@ -126,12 +135,12 @@ Function Get-CiscoSoftwareChecksum {
         A global default may be specified by setting $CiscoApiResponseFormat.
 
         .EXAMPLE
-        Get-CiscoSoftwareChecksum -ImageNames c2960-lanlitek9-mz.150-2.SE5.bin,mc3810-ik9s-mz.123-9e.bin
+        Get-CiscoSoftwareDownload -ProductId WS-C3850-48P -MdfId 284455380 -MetadataTransId 823140486791381248 -ImageNames cat3k_caa-universalk9.16.12.06.SPA.bin
 
-        Retrieve software checksum information for the provided image names.
+        Retrieve software download URLs for the provided product ID and image names.
 
         .NOTES
-        The provided API credentials must have access to the Cisco Automated Software Distribution API.
+        The provided API credentials must have access to the Cisco Automated Software Distribution API v4.0.
 
         .LINK
         https://developer.cisco.com/docs/support-apis/#!automated-software-distribution
@@ -140,9 +149,20 @@ Function Get-CiscoSoftwareChecksum {
     [CmdletBinding()]
     Param(
         [Parameter(Mandatory)]
-        [ValidateCount(1, 5)]
         [ValidateLength(1, 256)]
-        [String[]]$ImageNames,
+        [String]$ProductId,
+
+        [Parameter(Mandatory)]
+        [Int64]$MdfId,
+
+        [Parameter(Mandatory)]
+        [ValidateLength(1, 40)]
+        [String]$MetadataTransId,
+
+        [Parameter(Mandatory)]
+        [ValidateCount(1, 5)]
+        [ValidateLength(1, 40)]
+        [String[]]$ImageGuids,
 
         [ValidateSet('JSON', 'PSObject', 'WebResponse')]
         [String]$ResponseFormat = 'PSObject',
@@ -156,13 +176,16 @@ Function Get-CiscoSoftwareChecksum {
 
     Initialize-CiscoApiRequest
 
-    $BaseUri = 'https://api.cisco.com/software/v3.0'
-    $QueryParams = @{}
-
-    $Uri = '{0}/checksum/image_names/{1}' -f $BaseUri, [String]::Join(',', $ImageNames)
+    $Uri = 'https://api.cisco.com/software/v4.0/download/pidimage'
+    $ApiParams = @{
+        pid             = $ProductId
+        mdfId           = $MdfId
+        metadataTransId = $MetadataTransId
+        imageGuids      = $ImageGuids
+    }
 
     try {
-        $Response = & $RequestCommand @RequestCommandBaseParams -Uri $Uri -Method Get -Headers $ApiToken -Body $QueryParams
+        $Response = & $RequestCommand @RequestCommandBaseParams -Uri $Uri -Method Post -Headers $ApiToken -ContentType 'application/json' -Body ($ApiParams | ConvertTo-Json)
     } catch {
         throw $_
     }
@@ -172,8 +195,8 @@ Function Get-CiscoSoftwareChecksum {
         'JSON' { return $Response.Content }
     }
 
-    $ApiResponse = $Response.checksums
-    $ApiResponse | ForEach-Object { $_.PSObject.TypeNames.Insert(0, 'PSCiscoSupportAPIs.SoftwareChecksum') }
+    $ApiResponse = $Response.downloads
+    $ApiResponse | ForEach-Object { $_.PSObject.TypeNames.Insert(0, 'PSCiscoSupportAPIs.SoftwareDownload') }
 
     return $ApiResponse
 }
@@ -181,7 +204,7 @@ Function Get-CiscoSoftwareChecksum {
 Function Get-CiscoSoftwareRelease {
     <#
         .SYNOPSIS
-        Retrieve software release information by product identifier(s)
+        Retrieve software release information by product identifiers
 
         .DESCRIPTION
         This function wraps the Cisco Automated Software Distribution API to allow easy querying from PowerShell.
@@ -196,37 +219,31 @@ Function Get-CiscoSoftwareRelease {
 
         This overrides any default specified in $CiscoApiClientSecret.
 
-        .PARAMETER CurrentReleases
+        .PARAMETER CurrentReleaseVersion
         Current release version on which to filter the results.
 
-        A current release version must be specified for each provided product identifier.
-
         .PARAMETER ImageNames
-        Retrieve software release information for the specified image name(s).
+        Retrieve software release information for the specified image names.
 
-        Up to 25 image names can be entered specified as an array of strings.
+        Up to 5 image names can be entered specified as an array of strings.
 
-        .PARAMETER OutputReleases
+        .PARAMETER OutputReleaseVersion
         Output release version on which to filter the results.
 
-        A output release version must be specified for each provided product identifier.
-
-        Valid values are:
-        - Above
-        - Latest
+        The special values "Above" and "Latest" can also be used.
 
         .PARAMETER PageIndex
         Index number of the page to return.
 
         If not specified the first page will be returned.
 
-        .PARAMETER ProductID
+        .PARAMETER PerPage
+        Number of records to return per page.
+
+        If not specified 25 records will be returned.
+
+        .PARAMETER ProductId
         Retrieve software release information associated with the specified product identifier.
-
-        .PARAMETER ProductIDs
-        Retrieve software release information associated with the specified product identifier(s).
-
-        Up to five product identifiers can be entered specified as an array of strings.
 
         .PARAMETER ResponseFormat
         Format in which to return the API response.
@@ -246,17 +263,17 @@ Function Get-CiscoSoftwareRelease {
         A global default may be specified by setting $CiscoApiResponseFormat.
 
         .EXAMPLE
-        Get-CiscoSoftwareRelease -ProductIDs R2XX-D500GCSATA,WS-C2960-8TC-S -CurrentReleases '1.4(2b)',15.0.2-SE5 -OutputReleases Latest,Latest
+        Get-CiscoSoftwareRelease -ProductID WS-C3850-48P -CurrentReleaseVersion 16.12.5b -OutputReleaseVersion Latest
 
-        Retrieve software release information for the provided product IDs filtered on the given respective current release version and returning only the latest respective release version.
+        Retrieve software release information for the provided product ID filtered on a current and output release version.
 
         .EXAMPLE
-        Get-CiscoSoftwareRelease -ProductID WS-F4531= -ImageNames cat4000-i5s-mz.122-25.EWA7.bin
+        Get-CiscoSoftwareRelease -ProductId WS-C3850-48P -ImageNames cat3k_caa-universalk9.16.12.05b.SPA.bin
 
         Retrieve software release information for the provided product ID and image name.
 
         .NOTES
-        The provided API credentials must have access to the Cisco Automated Software Distribution API.
+        The provided API credentials must have access to the Cisco Automated Software Distribution API v4.0.
 
         .LINK
         https://developer.cisco.com/docs/support-apis/#!automated-software-distribution
@@ -264,33 +281,28 @@ Function Get-CiscoSoftwareRelease {
 
     [CmdletBinding()]
     Param(
-        [Parameter(ParameterSetName = 'Pids', Mandatory)]
+        [Parameter(Mandatory)]
+        [ValidateLength(1, 256)]
+        [String]$ProductId,
+
+        [Parameter(ParameterSetName = 'PidAndRelease', Mandatory)]
+        [ValidateLength(1, 256)]
+        [String]$CurrentReleaseVersion,
+
+        [Parameter(ParameterSetName = 'PidAndRelease', Mandatory)]
+        [ValidateLength(1, 256)]
+        [String]$OutputReleaseVersion,
+
+        [Parameter(ParameterSetName = 'PidAndImage', Mandatory)]
         [ValidateCount(1, 5)]
-        [ValidateLength(1, 20)]
-        [String[]]$ProductIDs,
-
-        [Parameter(ParameterSetName = 'Pids', Mandatory)]
-        [ValidateCount(1, 5)]
-        [ValidateLength(1, 20)]
-        [String[]]$CurrentReleases,
-
-        [Parameter(ParameterSetName = 'Pids', Mandatory)]
-        [ValidateCount(1, 5)]
-        [ValidateSet('Above', 'Latest')]
-        [String[]]$OutputReleases,
-
-        [Parameter(ParameterSetName = 'Pid', Mandatory)]
-        [ValidateLength(1, 20)]
-        [String]$ProductID,
-
-        [Parameter(ParameterSetName = 'Pid', Mandatory)]
-        [ValidateCount(1, 25)]
         [ValidateLength(1, 256)]
         [String[]]$ImageNames,
 
-        [Parameter(ParameterSetName = 'Pids')]
         [ValidateRange(1, 99999)]
         [Int]$PageIndex = 1,
+
+        [ValidateRange(1, 25)]
+        [Int]$PerPage = 25,
 
         [ValidateSet('JSON', 'PSObject', 'WebResponse')]
         [String]$ResponseFormat = 'PSObject',
@@ -304,26 +316,24 @@ Function Get-CiscoSoftwareRelease {
 
     Initialize-CiscoApiRequest
 
-    if ($PSCmdlet.ParameterSetName -eq 'Pids') {
-        if ($CurrentReleases.Count -ne $ProductIDs.Count) {
-            throw 'A current release version must be specified for each product ID.'
-        } elseif ($OutputReleases.Count -ne $ProductIDs.Count) {
-            throw 'A output release version must be specified for each product ID.'
-        }
+    $BaseUri = 'https://api.cisco.com/software/v4.0'
+    $ApiParams = @{
+        pageIndex = $PageIndex
+        perPage   = $PerPage
+        pid       = $ProductId
     }
 
-    $BaseUri = 'https://api.cisco.com/software/v3.0'
-    $QueryParams = @{}
-
-    if ($PSCmdlet.ParameterSetName -eq 'Pids') {
-        $Uri = '{0}/metadata/pids/{1}/current_releases/{2}/output_releases/{3}' -f $BaseUri, [String]::Join(',', $ProductIDs), [String]::Join(',', $CurrentReleases), [String]::Join(',', $OutputReleases)
-        $QueryParams['page_index'] = $PageIndex
+    if ($PSCmdlet.ParameterSetName -eq 'PidAndRelease') {
+        $Uri = '{0}/metadata/pidrelease' -f $BaseUri
+        $ApiParams['currentReleaseVersion'] = $CurrentReleaseVersion
+        $ApiParams['outputReleaseVersion'] = $OutputReleaseVersion
     } else {
-        $Uri = '{0}/metadata/pid/{1}/image_names/{2}' -f $BaseUri, $ProductID, [String]::Join(',', $ImageNames)
+        $Uri = '{0}/metadata/pidimage' -f $BaseUri
+        $ApiParams['imageNames'] = $ImageNames
     }
 
     try {
-        $Response = & $RequestCommand @RequestCommandBaseParams -Uri $Uri -Method Get -Headers $ApiToken -Body $QueryParams
+        $Response = & $RequestCommand @RequestCommandBaseParams -Uri $Uri -Method Post -Headers $ApiToken -ContentType 'application/json' -Body ($ApiParams | ConvertTo-Json)
     } catch {
         throw $_
     }
@@ -333,28 +343,20 @@ Function Get-CiscoSoftwareRelease {
         'JSON' { return $Response.Content }
     }
 
-    $ApiResponse = $Response.metadata_response
-    if ($ApiResponse.PSObject.Properties['asd_metadata_exception']) {
-        if ($ApiResponse.asd_metadata_exception.exception_code -eq 'NO_DATA_FOUND') {
-            return
-        } else {
-            throw $ApiResponse.asd_metadata_exception.exception_message
-        }
-    }
-
+    $ApiResponse = $Response
     $ApiResponseFlattened = @()
-    foreach ($ApiResponsePid in $ApiResponse.metadata_pid_list) {
-        foreach ($ApiResponseMdfid in $ApiResponsePid.metadata_mdfid_list) {
-            foreach ($ApiResponseSoftware in $ApiResponseMdfid.software_response_list) {
-                foreach ($ApiResponsePlatform in $ApiResponseSoftware.platform_list) {
-                    foreach ($ApiResponseRelease in $ApiResponsePlatform.release_list) {
-                        $ApiResponseRelease | Add-Member -MemberType NoteProperty -Name metadata_trans_id -Value $ApiResponse.metadata_trans_id
-                        $ApiResponseRelease | Add-Member -MemberType NoteProperty -Name pid -Value $ApiResponsePid.pid
-                        $ApiResponseRelease | Add-Member -MemberType NoteProperty -Name mdfid -Value $ApiResponseMdfid.mdfid
-                        $ApiResponseRelease | Add-Member -MemberType NoteProperty -Name mdf_concept_name -Value $ApiResponseMdfid.mdf_concept_name
-                        $ApiResponseRelease | Add-Member -MemberType NoteProperty -Name software_type_id -Value $ApiResponseSoftware.software_type_id
-                        $ApiResponseRelease | Add-Member -MemberType NoteProperty -Name software_type_name -Value $ApiResponseSoftware.software_type_name
-                        $ApiResponseRelease | Add-Member -MemberType NoteProperty -Name operating_platform -Value $ApiResponsePlatform.operating_platform
+    foreach ($ApiResponseMetadata in $ApiResponse.metadata) {
+        foreach ($ApiResponseProduct in $ApiResponseMetadata.products) {
+            foreach ($ApiResponseSoftwareType in $ApiResponseProduct.softwareTypes) {
+                foreach ($ApiResponseOperatingSystem in $ApiResponseSoftwareType.operatingSystems) {
+                    foreach ($ApiResponseRelease in $ApiResponseOperatingSystem.releases) {
+                        $ApiResponseRelease | Add-Member -MemberType NoteProperty -Name metadataTransId -Value $ApiResponse.metadataTransId
+                        $ApiResponseRelease | Add-Member -MemberType NoteProperty -Name pid -Value $ApiResponseMetadata.pid
+                        $ApiResponseRelease | Add-Member -MemberType NoteProperty -Name mdfId -Value $ApiResponseProduct.mdfId
+                        $ApiResponseRelease | Add-Member -MemberType NoteProperty -Name mdfConceptName -Value $ApiResponseProduct.mdfConceptName
+                        $ApiResponseRelease | Add-Member -MemberType NoteProperty -Name softwareTypeId -Value $ApiResponseSoftwareType.softwareTypeId
+                        $ApiResponseRelease | Add-Member -MemberType NoteProperty -Name softwareTypeName -Value $ApiResponseSoftwareType.softwareTypeName
+                        $ApiResponseRelease | Add-Member -MemberType NoteProperty -Name operatingSystem -Value $ApiResponseOperatingSystem.name
                         $ApiResponseRelease.PSObject.TypeNames.Insert(0, 'PSCiscoSupportAPIs.SoftwareRelease')
                         $ApiResponseFlattened += $ApiResponseRelease
                     }
@@ -369,7 +371,7 @@ Function Get-CiscoSoftwareRelease {
 Function Get-CiscoSoftwareStatus {
     <#
         .SYNOPSIS
-        Retrieve software status information by image name
+        Retrieve software status information by image names
 
         .DESCRIPTION
         This function wraps the Cisco Automated Software Distribution API to allow easy querying from PowerShell.
@@ -385,9 +387,9 @@ Function Get-CiscoSoftwareStatus {
         This overrides any default specified in $CiscoApiClientSecret.
 
         .PARAMETER ImageNames
-        Retrieve software status information for the specified image name(s).
+        Retrieve software status information for the specified image names.
 
-        Up to 25 image names can be entered specified as an array of strings.
+        Up to 5 image names can be entered specified as an array of strings.
 
         .PARAMETER ResponseFormat
         Format in which to return the API response.
@@ -407,12 +409,12 @@ Function Get-CiscoSoftwareStatus {
         A global default may be specified by setting $CiscoApiResponseFormat.
 
         .EXAMPLE
-        Get-CiscoSoftwareStatus -ImageNames c2960-lanlitek9-mz.150-2.SE5.bin,mc3810-ik9s-mz.123-9e.bin
+        Get-CiscoSoftwareStatus -ImageNames cat3k_caa-universalk9.16.12.05b.SPA.bin
 
-        Retrieve software status information for the provided image names.
+        Retrieve software status information for the provided image name.
 
         .NOTES
-        The provided API credentials must have access to the Cisco Automated Software Distribution API.
+        The provided API credentials must have access to the Cisco Automated Software Distribution API v4.0.
 
         .LINK
         https://developer.cisco.com/docs/support-apis/#!automated-software-distribution
@@ -421,7 +423,7 @@ Function Get-CiscoSoftwareStatus {
     [CmdletBinding()]
     Param(
         [Parameter(Mandatory)]
-        [ValidateCount(1, 25)]
+        [ValidateCount(1, 5)]
         [ValidateLength(1, 256)]
         [String[]]$ImageNames,
 
@@ -437,13 +439,13 @@ Function Get-CiscoSoftwareStatus {
 
     Initialize-CiscoApiRequest
 
-    $BaseUri = 'https://api.cisco.com/software/v3.0'
-    $QueryParams = @{}
-
-    $Uri = '{0}/swstatus/image_names/{1}' -f $BaseUri, [String]::Join(',', $ImageNames)
+    $Uri = 'https://api.cisco.com/software/v4.0/metadata/images'
+    $ApiParams = @{
+        imageNames = $ImageNames
+    }
 
     try {
-        $Response = & $RequestCommand @RequestCommandBaseParams -Uri $Uri -Method Get -Headers $ApiToken -Body $QueryParams
+        $Response = & $RequestCommand @RequestCommandBaseParams -Uri $Uri -Method Post -Headers $ApiToken -ContentType 'application/json' -Body ($ApiParams | ConvertTo-Json)
     } catch {
         throw $_
     }
@@ -453,7 +455,11 @@ Function Get-CiscoSoftwareStatus {
         'JSON' { return $Response.Content }
     }
 
-    $ApiResponse = $Response.metadata_List
+    if ($Response.invalidImages) {
+        Write-Warning -Message ('The following images are invalid: {0}' -f [String]::Join(', ', $Response.invalidImages))
+    }
+
+    $ApiResponse = $Response.metadata
     $ApiResponse | ForEach-Object { $_.PSObject.TypeNames.Insert(0, 'PSCiscoSupportAPIs.SoftwareStatus') }
 
     return $ApiResponse

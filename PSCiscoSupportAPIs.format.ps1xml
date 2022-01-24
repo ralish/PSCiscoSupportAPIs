@@ -5,38 +5,38 @@
             Automated Software Distribution API
         -->
         <View>
-            <Name>PSCiscoSupportAPIs.SoftwareChecksum</Name>
+            <Name>PSCiscoSupportAPIs.SoftwareDownload</Name>
             <ViewSelectedBy>
-                <TypeName>PSCiscoSupportAPIs.SoftwareChecksum</TypeName>
+                <TypeName>PSCiscoSupportAPIs.SoftwareDownload</TypeName>
             </ViewSelectedBy>
-            <TableControl>
-                <TableHeaders>
-                    <TableColumnHeader>
-                        <Label>Image Name</Label>
-                    </TableColumnHeader>
-                    <TableColumnHeader>
-                        <Label>MD5 Hash</Label>
-                    </TableColumnHeader>
-                    <TableColumnHeader>
-                        <Label>SHA512 Hash</Label>
-                    </TableColumnHeader>
-                </TableHeaders>
-                <TableRowEntries>
-                    <TableRowEntry>
-                        <TableColumnItems>
-                            <TableColumnItem>
-                                <PropertyName>image_name</PropertyName>
-                            </TableColumnItem>
-                            <TableColumnItem>
-                                <PropertyName>md5_checksum</PropertyName>
-                            </TableColumnItem>
-                            <TableColumnItem>
-                                <PropertyName>sha512_checksum</PropertyName>
-                            </TableColumnItem>
-                        </TableColumnItems>
-                    </TableRowEntry>
-                </TableRowEntries>
-            </TableControl>
+            <ListControl>
+                <ListEntries>
+                    <ListEntry>
+                        <ListItems>
+                            <ListItem>
+                                <Label>Image Name</Label>
+                                <PropertyName>imageName</PropertyName>
+                            </ListItem>
+                            <ListItem>
+                                <Label>URL</Label>
+                                <PropertyName>url</PropertyName>
+                            </ListItem>
+                            <ListItem>
+                                <Label>Token</Label>
+                                <PropertyName>token</PropertyName>
+                            </ListItem>
+                            <ListItem>
+                                <Label>Session ID</Label>
+                                <PropertyName>sessionId</PropertyName>
+                            </ListItem>
+                            <ListItem>
+                                <Label>Result</Label>
+                                <ScriptBlock>if ($_.exception) { $_.exception.code } else { 'OK' }</ScriptBlock>
+                            </ListItem>
+                        </ListItems>
+                    </ListEntry>
+                </ListEntries>
+            </ListControl>
         </View>
         <View>
             <Name>PSCiscoSupportAPIs.SoftwareRelease</Name>
@@ -58,6 +58,9 @@
                         <Label>Software Release</Label>
                     </TableColumnHeader>
                     <TableColumnHeader>
+                        <Label>Lifecycle</Label>
+                    </TableColumnHeader>
+                    <TableColumnHeader>
                         <Label>Is Suggested?</Label>
                     </TableColumnHeader>
                     <TableColumnHeader>
@@ -71,19 +74,22 @@
                                 <PropertyName>pid</PropertyName>
                             </TableColumnItem>
                             <TableColumnItem>
-                                <PropertyName>mdf_concept_name</PropertyName>
+                                <PropertyName>mdfConceptName</PropertyName>
                             </TableColumnItem>
                             <TableColumnItem>
-                                <PropertyName>software_type_name</PropertyName>
+                                <PropertyName>softwareTypeName</PropertyName>
                             </TableColumnItem>
                             <TableColumnItem>
-                                <PropertyName>release_version</PropertyName>
+                                <PropertyName>version</PropertyName>
                             </TableColumnItem>
                             <TableColumnItem>
-                                <PropertyName>is_suggested_rel</PropertyName>
+                                <PropertyName>lifecycle</PropertyName>
                             </TableColumnItem>
                             <TableColumnItem>
-                                <PropertyName>release_fcs_date</PropertyName>
+                                <PropertyName>isSuggested</PropertyName>
+                            </TableColumnItem>
+                            <TableColumnItem>
+                                <PropertyName>fcsDate</PropertyName>
                             </TableColumnItem>
                         </TableColumnItems>
                     </TableRowEntry>
@@ -101,41 +107,41 @@
                         <Label>Image Name</Label>
                     </TableColumnHeader>
                     <TableColumnHeader>
+                        <Label>Software Type</Label>
+                    </TableColumnHeader>
+                    <TableColumnHeader>
+                        <Label>Image Size</Label>
+                    </TableColumnHeader>
+                    <TableColumnHeader>
                         <Label>Release Date</Label>
                     </TableColumnHeader>
                     <TableColumnHeader>
-                        <Label>Software Advisory</Label>
+                        <Label>Deleted Date</Label>
                     </TableColumnHeader>
                     <TableColumnHeader>
-                        <Label>Deferral Notice</Label>
-                    </TableColumnHeader>
-                    <TableColumnHeader>
-                        <Label>Is Deleted?</Label>
-                    </TableColumnHeader>
-                    <TableColumnHeader>
-                        <Label>Deletion Date</Label>
+                        <Label>Result</Label>
                     </TableColumnHeader>
                 </TableHeaders>
                 <TableRowEntries>
                     <TableRowEntry>
                         <TableColumnItems>
                             <TableColumnItem>
-                                <PropertyName>image_name</PropertyName>
+                                <PropertyName>imageName</PropertyName>
                             </TableColumnItem>
                             <TableColumnItem>
-                                <PropertyName>release_fcs_date</PropertyName>
+                                <PropertyName>softwareTypeName</PropertyName>
                             </TableColumnItem>
                             <TableColumnItem>
-                                <PropertyName>software_advisory</PropertyName>
+                                <PropertyName>imageSize</PropertyName>
                             </TableColumnItem>
                             <TableColumnItem>
-                                <PropertyName>deferral_notice</PropertyName>
+                                <PropertyName>releaseFcsDate</PropertyName>
                             </TableColumnItem>
                             <TableColumnItem>
-                                <PropertyName>is_deleted_rel</PropertyName>
+                                <PropertyName>deletedDate</PropertyName>
                             </TableColumnItem>
                             <TableColumnItem>
-                                <PropertyName>deleted_date</PropertyName>
+                                <ScriptBlock>if ($_.exception) { $_.exception.code } else { 'OK' }</ScriptBlock>
                             </TableColumnItem>
                         </TableColumnItems>
                     </TableRowEntry>
