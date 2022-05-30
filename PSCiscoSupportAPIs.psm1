@@ -51,9 +51,9 @@ Function Get-CiscoApiAccessToken {
         [String]$ClientSecret
     )
 
-    if ($PSBoundParameters.ContainsKey('ClientId') -and $PSBoundParameters.ContainsKey('ClientSecret')) {
+    if ($ClientId -and $ClientSecret) {
         Write-Verbose -Message 'Using API client ID & secret provided as parameters ...'
-    } elseif ($PSBoundParameters.ContainsKey('ClientId') -xor $PSBoundParameters.ContainsKey('ClientSecret')) {
+    } elseif ($ClientId -xor $ClientSecret) {
         throw 'You must provide both the ClientId and ClientSecret parameters or neither.'
     } else {
         if ((Test-Path -Path 'Variable:\CiscoApiClientId') -and $CiscoApiClientId) {
@@ -190,7 +190,7 @@ Function Get-CiscoSoftwareDownload {
         throw $_
     }
 
-    switch ($PSBoundParameters['ResponseFormat']) {
+    switch ($ResponseFormat) {
         'WebResponse' { return $Response }
         'JSON' { return $Response.Content }
     }
@@ -338,7 +338,7 @@ Function Get-CiscoSoftwareRelease {
         throw $_
     }
 
-    switch ($PSBoundParameters['ResponseFormat']) {
+    switch ($ResponseFormat) {
         'WebResponse' { return $Response }
         'JSON' { return $Response.Content }
     }
@@ -450,7 +450,7 @@ Function Get-CiscoSoftwareStatus {
         throw $_
     }
 
-    switch ($PSBoundParameters['ResponseFormat']) {
+    switch ($ResponseFormat) {
         'WebResponse' { return $Response }
         'JSON' { return $Response.Content }
     }
@@ -590,7 +590,7 @@ Function Get-CiscoProductInformation {
         throw $_
     }
 
-    switch ($PSBoundParameters['ResponseFormat']) {
+    switch ($ResponseFormat) {
         'WebResponse' { return $Response }
         'JSON' { return $Response.Content }
     }
@@ -746,7 +746,7 @@ Function Get-CiscoCoverageInformation {
         throw $_
     }
 
-    switch ($PSBoundParameters['ResponseFormat']) {
+    switch ($ResponseFormat) {
         'WebResponse' { return $Response }
         'JSON' { return $Response.Content }
     }
@@ -849,7 +849,7 @@ Function Get-CiscoOrderableProductId {
         throw $_
     }
 
-    switch ($PSBoundParameters['ResponseFormat']) {
+    switch ($ResponseFormat) {
         'WebResponse' { return $Response }
         'JSON' { return $Response.Content }
     }
@@ -993,19 +993,19 @@ Function Get-CiscoServiceOrderReturn {
     } else {
         $Uri = '{0}/returns/users/user_ids/{1}' -f $BaseUri, $UserID
 
-        if ($PSBoundParameters.ContainsKey('FromDate')) {
+        if ($FromDate) {
             $QueryParams['fromDate'] = $FromDate.ToString('yyyy-MM-dd')
         }
 
-        if ($PSBoundParameters.ContainsKey('ToDate')) {
+        if ($ToDate) {
             $QueryParams['toDate'] = $ToDate.ToString('yyyy-MM-dd')
         }
 
-        if ($PSBoundParameters.ContainsKey('Status')) {
+        if ($Status) {
             $QueryParams['status'] = $Status.ToLower()
         }
 
-        if ($PSBoundParameters.ContainsKey('SortBy')) {
+        if ($SortBy) {
             $QueryParams['sortBy'] = $SortBy.ToLower()
         }
     }
@@ -1016,7 +1016,7 @@ Function Get-CiscoServiceOrderReturn {
         throw $_
     }
 
-    switch ($PSBoundParameters['ResponseFormat']) {
+    switch ($ResponseFormat) {
         'WebResponse' { return $Response }
         'JSON' { return $Response.Content }
     }
@@ -1180,6 +1180,7 @@ Function Get-CiscoSoftwareSuggestion {
 
         [Parameter(ParameterSetName = 'Pid')]
         [Parameter(ParameterSetName = 'MdfId')]
+        [ValidateNotNullOrEmpty()]
         [String[]]$SupportedHardware,
 
         [ValidateRange(1, 9999)]
@@ -1227,19 +1228,19 @@ Function Get-CiscoSoftwareSuggestion {
 
         $Uri = '{0}/suggestions/compatible/{1}/{2}' -f $BaseUri, $BaseId, $ID
 
-        if ($PSBoundParameters.ContainsKey('CurrentImage')) {
+        if ($CurrentImage) {
             $QueryParams['currentImage'] = $CurrentImage
         }
 
-        if ($PSBoundParameters.ContainsKey('CurrentRelease')) {
+        if ($CurrentRelease) {
             $QueryParams['currentRelease'] = $CurrentRelease
         }
 
-        if ($PSBoundParameters.ContainsKey('SupportedFeatures')) {
+        if ($SupportedFeatures) {
             $QueryParams['supportedFeatures'] = [String]::Join(',', $SupportedFeatures)
         }
 
-        if ($PSBoundParameters.ContainsKey('SupportedHardware')) {
+        if ($SupportedHardware) {
             $QueryParams['supportedHardware'] = [String]::Join(',', $SupportedHardware)
         }
     }
@@ -1250,7 +1251,7 @@ Function Get-CiscoSoftwareSuggestion {
         throw $_
     }
 
-    switch ($PSBoundParameters['ResponseFormat']) {
+    switch ($ResponseFormat) {
         'WebResponse' { return $Response }
         'JSON' { return $Response.Content }
     }
