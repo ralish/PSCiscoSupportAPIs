@@ -5,6 +5,7 @@ Set-StrictMode -Version 3.0
 
 Function Initialize-CiscoApiRequest {
     [CmdletBinding()]
+    [OutputType([Void])]
     Param()
 
     $CallerParams = (Get-PSCallStack)[1].InvocationInfo.BoundParameters
@@ -43,6 +44,7 @@ Function Initialize-CiscoApiRequest {
 # https://apiconsole.cisco.com/files/Token_Access.pdf
 Function Get-CiscoApiAccessToken {
     [CmdletBinding()]
+    [OutputType([Hashtable])]
     Param(
         [ValidateNotNullOrEmpty()]
         [String]$ClientId,
@@ -147,6 +149,7 @@ Function Get-CiscoSoftwareDownload {
     #>
 
     [CmdletBinding()]
+    [OutputType([String], [Object[]], [Microsoft.PowerShell.Commands.BasicHtmlWebResponseObject])]
     Param(
         [Parameter(Mandatory)]
         [ValidateLength(1, 256)]
@@ -280,6 +283,7 @@ Function Get-CiscoSoftwareRelease {
     #>
 
     [CmdletBinding()]
+    [OutputType([String], [Object[]], [Microsoft.PowerShell.Commands.BasicHtmlWebResponseObject])]
     Param(
         [Parameter(Mandatory)]
         [ValidateLength(1, 256)]
@@ -421,6 +425,7 @@ Function Get-CiscoSoftwareStatus {
     #>
 
     [CmdletBinding()]
+    [OutputType([String], [Object[]], [Microsoft.PowerShell.Commands.BasicHtmlWebResponseObject])]
     Param(
         [Parameter(Mandatory)]
         [ValidateCount(1, 5)]
@@ -540,6 +545,7 @@ Function Get-CiscoProductInformation {
     #>
 
     [CmdletBinding()]
+    [OutputType([String], [Object[]], [Microsoft.PowerShell.Commands.BasicHtmlWebResponseObject])]
     Param(
         [Parameter(ParameterSetName = 'Serial', Mandatory)]
         [ValidateCount(1, 5)]
@@ -693,6 +699,7 @@ Function Get-CiscoCoverageInformation {
     #>
 
     [CmdletBinding()]
+    [OutputType([String], [Object[]], [Microsoft.PowerShell.Commands.BasicHtmlWebResponseObject])]
     Param(
         [Parameter(ParameterSetName = 'Serial', Mandatory)]
         [ValidateCount(1, 75)]
@@ -820,6 +827,7 @@ Function Get-CiscoOrderableProductId {
     #>
 
     [CmdletBinding()]
+    [OutputType([String], [Object[]], [Microsoft.PowerShell.Commands.BasicHtmlWebResponseObject])]
     Param(
         [Parameter(Mandatory)]
         [ValidateCount(1, 75)]
@@ -950,6 +958,7 @@ Function Get-CiscoServiceOrderReturn {
     #>
 
     [CmdletBinding()]
+    [OutputType([String], [Object[]], [Microsoft.PowerShell.Commands.BasicHtmlWebResponseObject])]
     Param(
         [Parameter(ParameterSetName = 'Rma', Mandatory)]
         [ValidateRange(1, 9999999999)]
@@ -1140,6 +1149,7 @@ Function Get-CiscoSoftwareSuggestion {
     #>
 
     [CmdletBinding()]
+    [OutputType([String], [Object[]], [Microsoft.PowerShell.Commands.BasicHtmlWebResponseObject])]
     Param(
         [Parameter(ParameterSetName = 'Pids', Mandatory)]
         [ValidateCount(1, 10)]
