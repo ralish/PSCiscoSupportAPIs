@@ -350,13 +350,13 @@ Function Get-CiscoSoftwareRelease {
             foreach ($ApiResponseSoftwareType in $ApiResponseProduct.softwareTypes) {
                 foreach ($ApiResponseOperatingSystem in $ApiResponseSoftwareType.operatingSystems) {
                     foreach ($ApiResponseRelease in $ApiResponseOperatingSystem.releases) {
-                        $ApiResponseRelease | Add-Member -MemberType NoteProperty -Name metadataTransId -Value $ApiResponse.metadataTransId
-                        $ApiResponseRelease | Add-Member -MemberType NoteProperty -Name pid -Value $ApiResponseMetadata.pid
-                        $ApiResponseRelease | Add-Member -MemberType NoteProperty -Name mdfId -Value $ApiResponseProduct.mdfId
-                        $ApiResponseRelease | Add-Member -MemberType NoteProperty -Name mdfConceptName -Value $ApiResponseProduct.mdfConceptName
-                        $ApiResponseRelease | Add-Member -MemberType NoteProperty -Name softwareTypeId -Value $ApiResponseSoftwareType.softwareTypeId
-                        $ApiResponseRelease | Add-Member -MemberType NoteProperty -Name softwareTypeName -Value $ApiResponseSoftwareType.softwareTypeName
-                        $ApiResponseRelease | Add-Member -MemberType NoteProperty -Name operatingSystem -Value $ApiResponseOperatingSystem.name
+                        $ApiResponseRelease | Add-Member -MemberType NoteProperty -Name 'metadataTransId' -Value $ApiResponse.metadataTransId
+                        $ApiResponseRelease | Add-Member -MemberType NoteProperty -Name 'pid' -Value $ApiResponseMetadata.pid
+                        $ApiResponseRelease | Add-Member -MemberType NoteProperty -Name 'mdfId' -Value $ApiResponseProduct.mdfId
+                        $ApiResponseRelease | Add-Member -MemberType NoteProperty -Name 'mdfConceptName' -Value $ApiResponseProduct.mdfConceptName
+                        $ApiResponseRelease | Add-Member -MemberType NoteProperty -Name 'softwareTypeId' -Value $ApiResponseSoftwareType.softwareTypeId
+                        $ApiResponseRelease | Add-Member -MemberType NoteProperty -Name 'softwareTypeName' -Value $ApiResponseSoftwareType.softwareTypeName
+                        $ApiResponseRelease | Add-Member -MemberType NoteProperty -Name 'operatingSystem' -Value $ApiResponseOperatingSystem.name
                         $ApiResponseRelease.PSObject.TypeNames.Insert(0, 'PSCiscoSupportAPIs.SoftwareRelease')
                         $ApiResponseFlattened += $ApiResponseRelease
                     }
