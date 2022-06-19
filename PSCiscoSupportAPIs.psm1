@@ -149,7 +149,7 @@ Function Get-CiscoSoftwareDownload {
     #>
 
     [CmdletBinding()]
-    [OutputType([String], [Object[]], [Microsoft.PowerShell.Commands.BasicHtmlWebResponseObject])]
+    [OutputType([String], [PSCustomObject[]], [Microsoft.PowerShell.Commands.BasicHtmlWebResponseObject])]
     Param(
         [Parameter(Mandatory)]
         [ValidateLength(1, 256)]
@@ -283,7 +283,7 @@ Function Get-CiscoSoftwareRelease {
     #>
 
     [CmdletBinding()]
-    [OutputType([String], [Object[]], [Microsoft.PowerShell.Commands.BasicHtmlWebResponseObject])]
+    [OutputType([String], [PSCustomObject[]], [Microsoft.PowerShell.Commands.BasicHtmlWebResponseObject])]
     Param(
         [Parameter(Mandatory)]
         [ValidateLength(1, 256)]
@@ -348,7 +348,7 @@ Function Get-CiscoSoftwareRelease {
     }
 
     $ApiResponse = $Response
-    $ApiResponseFlattened = @()
+    $ApiResponseFlattened = New-Object -TypeName 'Collections.Generic.List[PSCustomObject]'
     foreach ($ApiResponseMetadata in $ApiResponse.metadata) {
         foreach ($ApiResponseProduct in $ApiResponseMetadata.products) {
             foreach ($ApiResponseSoftwareType in $ApiResponseProduct.softwareTypes) {
@@ -362,14 +362,14 @@ Function Get-CiscoSoftwareRelease {
                         $ApiResponseRelease | Add-Member -MemberType NoteProperty -Name 'softwareTypeName' -Value $ApiResponseSoftwareType.softwareTypeName
                         $ApiResponseRelease | Add-Member -MemberType NoteProperty -Name 'operatingSystem' -Value $ApiResponseOperatingSystem.name
                         $ApiResponseRelease.PSObject.TypeNames.Insert(0, 'PSCiscoSupportAPIs.SoftwareRelease')
-                        $ApiResponseFlattened += $ApiResponseRelease
+                        $ApiResponseFlattened.Add($ApiResponseRelease)
                     }
                 }
             }
         }
     }
 
-    return $ApiResponseFlattened
+    return $ApiResponseFlattened.ToArray()
 }
 
 Function Get-CiscoSoftwareStatus {
@@ -425,7 +425,7 @@ Function Get-CiscoSoftwareStatus {
     #>
 
     [CmdletBinding()]
-    [OutputType([String], [Object[]], [Microsoft.PowerShell.Commands.BasicHtmlWebResponseObject])]
+    [OutputType([String], [PSCustomObject[]], [Microsoft.PowerShell.Commands.BasicHtmlWebResponseObject])]
     Param(
         [Parameter(Mandatory)]
         [ValidateCount(1, 5)]
@@ -545,7 +545,7 @@ Function Get-CiscoProductInformation {
     #>
 
     [CmdletBinding()]
-    [OutputType([String], [Object[]], [Microsoft.PowerShell.Commands.BasicHtmlWebResponseObject])]
+    [OutputType([String], [PSCustomObject[]], [Microsoft.PowerShell.Commands.BasicHtmlWebResponseObject])]
     Param(
         [Parameter(ParameterSetName = 'Serial', Mandatory)]
         [ValidateCount(1, 5)]
@@ -699,7 +699,7 @@ Function Get-CiscoCoverageInformation {
     #>
 
     [CmdletBinding()]
-    [OutputType([String], [Object[]], [Microsoft.PowerShell.Commands.BasicHtmlWebResponseObject])]
+    [OutputType([String], [PSCustomObject[]], [Microsoft.PowerShell.Commands.BasicHtmlWebResponseObject])]
     Param(
         [Parameter(ParameterSetName = 'Serial', Mandatory)]
         [ValidateCount(1, 75)]
@@ -827,7 +827,7 @@ Function Get-CiscoOrderableProductId {
     #>
 
     [CmdletBinding()]
-    [OutputType([String], [Object[]], [Microsoft.PowerShell.Commands.BasicHtmlWebResponseObject])]
+    [OutputType([String], [PSCustomObject[]], [Microsoft.PowerShell.Commands.BasicHtmlWebResponseObject])]
     Param(
         [Parameter(Mandatory)]
         [ValidateCount(1, 75)]
@@ -958,7 +958,7 @@ Function Get-CiscoServiceOrderReturn {
     #>
 
     [CmdletBinding()]
-    [OutputType([String], [Object[]], [Microsoft.PowerShell.Commands.BasicHtmlWebResponseObject])]
+    [OutputType([String], [PSCustomObject[]], [Microsoft.PowerShell.Commands.BasicHtmlWebResponseObject])]
     Param(
         [Parameter(ParameterSetName = 'Rma', Mandatory)]
         [ValidateRange(1, 9999999999)]
@@ -1149,7 +1149,7 @@ Function Get-CiscoSoftwareSuggestion {
     #>
 
     [CmdletBinding()]
-    [OutputType([String], [Object[]], [Microsoft.PowerShell.Commands.BasicHtmlWebResponseObject])]
+    [OutputType([String], [PSCustomObject[]], [Microsoft.PowerShell.Commands.BasicHtmlWebResponseObject])]
     Param(
         [Parameter(ParameterSetName = 'Pids', Mandatory)]
         [ValidateCount(1, 10)]
