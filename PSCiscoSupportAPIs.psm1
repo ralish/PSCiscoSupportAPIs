@@ -25,7 +25,9 @@ Function Initialize-CiscoApiRequest {
     }
 
     $Script:RequestCommand = 'Invoke-RestMethod'
-    $Script:RequestCommandBaseParams = @{}
+    $Script:RequestCommandBaseParams = @{
+        ErrorAction = 'Stop'
+    }
 
     if ($CallerParams['ResponseFormat'] -ne 'PSObject') {
         $Script:RequestCommand = 'Invoke-WebRequest'
@@ -74,7 +76,7 @@ Function Get-CiscoApiAccessToken {
     }
 
     $Uri = 'https://cloudsso.cisco.com/as/token.oauth2?grant_type=client_credentials&client_id={0}&client_secret={1}' -f $ClientId, $ClientSecret
-    $Response = Invoke-RestMethod -Uri $Uri -Method Post
+    $Response = Invoke-RestMethod -Uri $Uri -Method Post -ErrorAction Stop
 
     $AuthzHeader = @{
         Authorization = ('{0} {1}' -f $Response.token_type, $Response.access_token)
