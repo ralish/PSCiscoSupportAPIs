@@ -47,7 +47,13 @@
     # ProcessorArchitecture = ''
 
     # Modules that must be imported into the global environment prior to importing this module
-    # RequiredModules = @()
+    #
+    # Automatic module import doesn't apply to types which a module exposes. We
+    # use the Microsoft.PowerShell.Commands.BasicHtmlWebResponseObject type,
+    # which is exposed by the Microsoft.PowerShell.Utility module, and so must
+    # ensure it's imported before any commands we expose are run. If not, an
+    # exception will be thrown on any invocation due to the missing type.
+    RequiredModules = @('Microsoft.PowerShell.Utility')
 
     # Assemblies that must be loaded prior to importing this module
     # RequiredAssemblies = @()
@@ -129,7 +135,11 @@
             # RequireLicenseAcceptance = $false
 
             # External dependent modules of this module
-            # ExternalModuleDependencies = @()
+            #
+            # See the RequiredModules setting for why we depend on this module.
+            # We have to also specify it here as it's part of PowerShell itself
+            # and so not published to the PowerShell Gallery.
+            ExternalModuleDependencies = @('Microsoft.PowerShell.Utility')
 
         } # End of PSData hashtable
 
