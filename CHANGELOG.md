@@ -1,6 +1,13 @@
 Changelog
 =========
 
+v0.3.1
+------
+
+- Add `Microsoft.PowerShell.Utility` to required modules to fix potential import error
+- Ensure an exception is thrown on all `Invoke-RestMethod` errors
+- Minor code clean-up & developer tooling improvements
+
 v0.3.0
 ------
 
