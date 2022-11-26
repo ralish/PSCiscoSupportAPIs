@@ -107,10 +107,10 @@ Function Get-CiscoSoftwareDownload {
 
         This overrides any default specified in $CiscoApiClientSecret.
 
-        .PARAMETER ImageNames
-        Retrieve software download URLs for the specified image names.
+        .PARAMETER ImageGuids
+        Retrieve software download URLs for the specified image GUIDs.
 
-        Up to 5 image names can be entered specified as an array of strings.
+        Up to 5 image GUIDs can be entered specified as an array of strings.
 
         .PARAMETER MdfId
         Metadata framework identifier for which to retrieve software download URLs.
@@ -139,9 +139,9 @@ Function Get-CiscoSoftwareDownload {
         A global default may be specified by setting $CiscoApiResponseFormat.
 
         .EXAMPLE
-        Get-CiscoSoftwareDownload -ProductId WS-C3850-48P -MdfId 284455380 -MetadataTransId 823140486791381248 -ImageNames cat3k_caa-universalk9.16.12.06.SPA.bin
+        Get-CiscoSoftwareDownload -ProductId WS-C3850-48P -MdfId 284455436 -MetadataTransId 972507362520295966 -ImageGuids 0BC6A916671DA39F410CBF5C70F786E58F9A7D33
 
-        Retrieve software download URLs for the provided product ID and image names.
+        Retrieve software download URLs for the provided product ID and image GUIDs.
 
         .NOTES
         The provided API credentials must have access to the Cisco Automated Software Distribution API v4.0.
