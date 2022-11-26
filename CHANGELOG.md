@@ -1,6 +1,11 @@
 Changelog
 =========
 
+v0.3.2
+------
+
+- `Get-CiscoSoftwareDownload`: Fix incorrect parameter help & example for `-ImageGuids`
+
 v0.3.1
 ------
 
