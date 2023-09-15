@@ -1,6 +1,11 @@
 Changelog
 =========
 
+v0.3.3
+------
+
+- Update API endpoints for Ping to Okta migration as per [Migrating Applications](https://apiconsole.cisco.com/docs/read/overview/Migrating_Applications)
+
 v0.3.2
 ------
 
