@@ -75,8 +75,8 @@ Function Get-CiscoApiAccessToken {
         Write-Verbose -Message 'Using API client ID & secret retrieved from session variables ...'
     }
 
-    $Uri = 'https://cloudsso.cisco.com/as/token.oauth2?grant_type=client_credentials&client_id={0}&client_secret={1}' -f $ClientId, $ClientSecret
-    $Response = Invoke-RestMethod -Uri $Uri -Method Post -ErrorAction Stop
+    $Uri = 'https://id.cisco.com/oauth2/default/v1/token?grant_type=client_credentials&client_id={0}&client_secret={1}' -f $ClientId, $ClientSecret
+    $Response = Invoke-RestMethod -Uri $Uri -Method Post -ContentType 'application/x-www-form-urlencoded' -ErrorAction Stop
 
     $AuthzHeader = @{
         Authorization = ('{0} {1}' -f $Response.token_type, $Response.access_token)
@@ -181,7 +181,7 @@ Function Get-CiscoSoftwareDownload {
 
     Initialize-CiscoApiRequest
 
-    $Uri = 'https://api.cisco.com/software/v4.0/download/pidimage'
+    $Uri = 'https://apix.cisco.com/software/v4.0/download/pidimage'
     $ApiParams = @{
         pid             = $ProductId
         mdfId           = $MdfId
@@ -322,7 +322,7 @@ Function Get-CiscoSoftwareRelease {
 
     Initialize-CiscoApiRequest
 
-    $BaseUri = 'https://api.cisco.com/software/v4.0'
+    $BaseUri = 'https://apix.cisco.com/software/v4.0'
     $ApiParams = @{
         pageIndex = $PageIndex
         perPage   = $PerPage
@@ -446,7 +446,7 @@ Function Get-CiscoSoftwareStatus {
 
     Initialize-CiscoApiRequest
 
-    $Uri = 'https://api.cisco.com/software/v4.0/metadata/images'
+    $Uri = 'https://apix.cisco.com/software/v4.0/metadata/images'
     $ApiParams = @{
         imageNames = $ImageNames
     }
@@ -577,7 +577,7 @@ Function Get-CiscoProductInformation {
 
     Initialize-CiscoApiRequest
 
-    $BaseUri = 'https://api.cisco.com/product/v1'
+    $BaseUri = 'https://apix.cisco.com/product/v1'
     $QueryParams = @{
         page_index = $PageIndex
     }
@@ -732,7 +732,7 @@ Function Get-CiscoCoverageInformation {
 
     Initialize-CiscoApiRequest
 
-    $BaseUri = 'https://api.cisco.com/sn2info/v2'
+    $BaseUri = 'https://apix.cisco.com/sn2info/v2'
     $QueryParams = @{}
 
     if ($PSCmdlet.ParameterSetName -eq 'Serial') {
@@ -848,7 +848,7 @@ Function Get-CiscoOrderableProductId {
 
     Initialize-CiscoApiRequest
 
-    $BaseUri = 'https://api.cisco.com/sn2info/v2'
+    $BaseUri = 'https://apix.cisco.com/sn2info/v2'
     $QueryParams = @{}
 
     $Uri = '{0}/identifiers/orderable/serial_numbers/{1}' -f $BaseUri, [String]::Join(',', $SerialNumbers)
@@ -996,7 +996,7 @@ Function Get-CiscoServiceOrderReturn {
 
     Initialize-CiscoApiRequest
 
-    $BaseUri = 'https://api.cisco.com/return/v1.0'
+    $BaseUri = 'https://apix.cisco.com/return/v1.0'
     $QueryParams = @{}
 
     if ($PSCmdlet.ParameterSetName -eq 'Rma') {
@@ -1210,7 +1210,7 @@ Function Get-CiscoSoftwareSuggestion {
 
     Initialize-CiscoApiRequest
 
-    $BaseUri = 'https://api.cisco.com/software/suggestion/v2'
+    $BaseUri = 'https://apix.cisco.com/software/suggestion/v2'
     $QueryParams = @{
         pageIndex = $PageIndex
     }
