@@ -85,13 +85,13 @@ API endpoints
 
 The following table shows the required API for each command:
 
-| API Name                                                                                                           | API Version | Command(s) |
-| ------------------------------------------------------------------------------------------------------------------ | ------------| ---------- |
+| API Name                                                                                                           | API Version | Command(s)                                                                             |
+| ------------------------------------------------------------------------------------------------------------------ | ----------- | -------------------------------------------------------------------------------------- |
 | [Automated Software Distribution](https://developer.cisco.com/docs/support-apis/#!automated-software-distribution) | v4          | `Get-CiscoSoftwareDownload`<br>`Get-CiscoSoftwareRelease`<br>`Get-CiscoSoftwareStatus` |
-| [Product Information](https://developer.cisco.com/docs/support-apis/#!product-information)                         | v1          | `Get-CiscoProductInformation` |
-| [Serial Number to Information](https://developer.cisco.com/docs/support-apis/#!serial-number-to-information)       | v2          | `Get-CiscoCoverageInformation`<br>`Get-CiscoOrderableProductId` |
-| [Service Order Return (RMA)](https://developer.cisco.com/docs/support-apis/#!service-order-return-rma)             | v1          | `Get-CiscoServiceOrderReturn` |
-| [Software Suggestion](https://developer.cisco.com/docs/support-apis/#!software-suggestion)                         | v2          | `Get-CiscoSoftwareSuggestion` |
+| [Product Information](https://developer.cisco.com/docs/support-apis/#!product-information)                         | v1          | `Get-CiscoProductInformation`                                                          |
+| [Serial Number to Information](https://developer.cisco.com/docs/support-apis/#!serial-number-to-information)       | v2          | `Get-CiscoCoverageInformation`<br>`Get-CiscoOrderableProductId`                        |
+| [Service Order Return (RMA)](https://developer.cisco.com/docs/support-apis/#!service-order-return-rma)             | v1          | `Get-CiscoServiceOrderReturn`                                                          |
+| [Software Suggestion](https://developer.cisco.com/docs/support-apis/#!software-suggestion)                         | v2          | `Get-CiscoSoftwareSuggestion`                                                          |
 
 Troubleshooting
 ---------------
